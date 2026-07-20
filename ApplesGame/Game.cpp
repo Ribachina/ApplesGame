@@ -1,5 +1,6 @@
 #include "Game.h"
 #include <cassert>
+#include <iostream>
 
 namespace ApplesGame
 {
@@ -8,19 +9,19 @@ namespace ApplesGame
 
 			InitPlayer(game.player, game);
 
-			for (int i = 0; i < NUM_APPLES; ++i)
+			for (int i = 0; i < game.numApples; ++i)
 			{
-				InitApples(game.apple[i], game.appleTexture);
+				InitApples(game.apples[i], game.appleTexture);
 			}
 
-			for (int i = 0; i < NUM_OBSTACLE; ++i)
+			for (int i = 0; i < game.numObstacles; ++i)
 			{
-				InitObstacles(game.obstacle[i], game.obstacleTexture);
+				InitObstacles(game.obstacles[i], game.obstacleTexture);
 			}
 
-			for (int i = 0; i < NUM_CIGARETTES; ++i)
+			for (int i = 0; i < game.numCigarettes; ++i)
 			{
-				InitCigarette(game.cigarette[i], game.cigaretteTexture);
+				InitCigarette(game.cigarettes[i], game.cigaretteTexture);
 			}
 
 			InitText(game.text);
@@ -41,6 +42,10 @@ namespace ApplesGame
 		game.obstacleTexture.loadFromFile(RESOURCES_PATH + "Maks.png");
 		game.cigaretteTexture.loadFromFile(RESOURCES_PATH + "Cigarette.png");
 
+		game.apples = new Apple[game.numApples]; // Выделяем память для яблок
+		game.obstacles = new Obstacle[game.numObstacles]; // Выделяем память для препядствий
+		game.cigarettes = new Cigarette[game.numCigarettes]; // Выделяем память для бонусов
+		
 		InitAudio(game.audio);
 
 		ResetGame(game);
@@ -49,15 +54,15 @@ namespace ApplesGame
 	void CollisionWithApple(Game& game)
 	{
 		// Проверка коллизии с яблоками
-		for (int i = 0; i < NUM_APPLES; ++i)
+		for (int i = 0; i < game.numApples; ++i)
 		{
-			if (!game.apple[i].isEaten && IsCirclesCollide(game.player.position, PLAYER_SIZE / 2.f,
-				game.apple[i].position, APPLE_SIZE / 2.f))
+			if (!game.apples[i].isEaten && IsCirclesCollide(game.player.position, PLAYER_SIZE / 2.f,
+				game.apples[i].position, APPLE_SIZE / 2.f))
 			{
-				game.apple[i].position = GetRandomPositionInScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
-				game.apple[i].sprite.setPosition(game.apple[i].position.x, game.apple[i].position.y);
+				game.apples[i].position = GetRandomPositionInScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
+				game.apples[i].sprite.setPosition(game.apples[i].position.x, game.apples[i].position.y);
 
-				game.apple[i].isEaten = false;
+				game.apples[i].isEaten = false;
 
 				game.numEatenApples++;
 
@@ -71,10 +76,10 @@ namespace ApplesGame
 	void CollisionWithObstacle(Game& game)
 	{
 		// Проверка коллизии с препяствиями
-		for (int i = 0; i < NUM_OBSTACLE; ++i)
+		for (int i = 0; i < game.numObstacles; ++i)
 		{
 			if (IsRectanglesCollide(game.player.position, { PLAYER_SIZE, PLAYER_SIZE },
-				game.obstacle[i].position, { OBSTACLE_SIZE, OBSTACLE_SIZE }))
+				game.obstacles[i].position, { OBSTACLE_SIZE, OBSTACLE_SIZE }))
 			{
 				if (!game.isGameOver)
 				{
@@ -88,13 +93,13 @@ namespace ApplesGame
 
 	void CollisionWithCigarette(Game& game)
 	{
-		for (int i = 0; i < NUM_CIGARETTES; ++i)
+		for (int i = 0; i < game.numCigarettes; ++i)
 		{
 			if (IsRectanglesCollide(game.player.position, { PLAYER_SIZE, PLAYER_SIZE },
-				game.cigarette[i].position, {CIGARETTE_SIZE, CIGARETTE_SIZE}))
+				game.cigarettes[i].position, {CIGARETTE_SIZE, CIGARETTE_SIZE}))
 			{
-				game.cigarette[i].position = GetRandomPositionInScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
-				game.cigarette[i].sprite.setPosition(game.cigarette[i].position.x, game.cigarette[i].position.y);
+				game.cigarettes[i].position = GetRandomPositionInScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
+				game.cigarettes[i].sprite.setPosition(game.cigarettes[i].position.x, game.cigarettes[i].position.y);
 
 				game.numEatenApples += 10;
 				
@@ -229,18 +234,20 @@ namespace ApplesGame
 		// Отрисовка игрока
 		DrawPlayer(game.player, window);
 		// Отрисовка массива яблок
-		DrawApple(game.apple, window);
+		DrawApple(game.apples, game.numApples, window);
 		// Отрисовываем массив препятсивий
-		DrawObstacles(game.obstacle, window);
+		DrawObstacles(game.obstacles, game.numObstacles, window);
         // Отрисовываем бонусные сигареты
-		DrawCigarette(game.cigarette, window);
+		DrawCigarette(game.cigarettes, game.numCigarettes, window);
 		// Отрисовываем текст
 		DrawText(game.text, window, game);
 	}
 
 	void Deinitialization(Game& game)
 	{
-
+		delete[] game.apples;
+		delete[] game.obstacles;
+		delete[] game.cigarettes;
 	}
 }
 

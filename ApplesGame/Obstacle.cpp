@@ -13,11 +13,11 @@ namespace ApplesGame
 		SetSpriteRelativeOrigin(obstacle.sprite, 0.5f, 0.5f);
 
 	}
-	void DrawObstacles(Obstacle obstacle[], sf::RenderWindow& window)
+	void DrawObstacles(Obstacle* obstacles, int count, sf::RenderWindow& window)
 	{
-		for (int i = 0; i < NUM_OBSTACLE; ++i)
+		for (int i = 0; i < count; ++i)
 		{
-			window.draw(obstacle[i].sprite);
+			window.draw(obstacles[i].sprite);
 		}
 	}
 }

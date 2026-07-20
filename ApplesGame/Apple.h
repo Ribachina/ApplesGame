@@ -14,7 +14,7 @@ namespace ApplesGame
 	};
 
 	void InitApples(Apple& apple, const sf::Texture& texture);
-	void DrawApple(Apple apple[], sf::RenderWindow& window);
+	void DrawApple(Apple* apples, int count, sf::RenderWindow& window);
 
 }
 

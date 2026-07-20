@@ -12,11 +12,11 @@ namespace ApplesGame {
 		SetSpriteSize(cigarette.sprite, CIGARETTE_SIZE, CIGARETTE_SIZE);
 		SetSpriteRelativeOrigin(cigarette.sprite, 0.5f, 0.5f);
 	}
-	void DrawCigarette(Cigarette cigarette[], sf::RenderWindow& window)
+	void DrawCigarette(Cigarette* cigarettes, int count, sf::RenderWindow& window)
 	{
-		for (int i = 0; i < NUM_CIGARETTES; ++i)
+		for (int i = 0; i < count; ++i)
 		{
-			window.draw(cigarette[i].sprite);
+			window.draw(cigarettes[i].sprite);
 		}
 	}
 }

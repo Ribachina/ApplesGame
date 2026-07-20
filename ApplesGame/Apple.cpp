@@ -16,14 +16,14 @@ namespace ApplesGame
 
 	}
 
-	void DrawApple(Apple apple[], sf::RenderWindow& window)
+	void DrawApple(Apple* apples, int count, sf::RenderWindow& window)
 	{
 		// ќтрисовываем массив €блок
-		for (int i = 0; i < NUM_APPLES; ++i)
+		for (int i = 0; i < count; ++i)
 		{
-			if (!apple[i].isEaten)
+			if (!apples[i].isEaten)
 			{
-				window.draw(apple[i].sprite);
+				window.draw(apples[i].sprite);
 			}
 		}
 	}

@@ -10,6 +10,48 @@ int main()
 {
 	using namespace ApplesGame;
 
+	std::cout << "Enter num of apples (default 20): ";
+	int numApples;
+	std::cin >> numApples;  // Просим ввести количество яблок
+
+	if (numApples <= 0)
+	{
+		numApples = DEFAULT_NUM_APPLES;
+		std::cout << "Using default: " << numApples << " apples\n";
+	}
+	else
+	{
+		std::cout << "Using: " << numApples << " apples\n";
+	}
+
+	std::cout << "Enter num of obstacles (default 5): ";
+	int numObstacles;
+	std::cin >> numObstacles; // Просим ввести количество препядствий
+
+	if (numObstacles <= 0)
+	{
+		numObstacles = DEFAULT_NUM_OBSTACLES;
+		std::cout << "Using default: " << numObstacles << " obstacles\n";
+	}
+	else
+	{
+		std::cout << "Using: " << numObstacles << " obstacles\n";
+	}
+
+	std::cout << "Enter num of bonus (default 2): ";
+	int numCigarettes;
+	std::cin >> numCigarettes; // ПРосим ввести количество бонусов на экране
+
+	if (numCigarettes <= 0)
+	{
+		numCigarettes = DEFAULT_NUM_CIGARETTES;
+		std::cout << "Using default: " << numCigarettes << " bonus\n";
+	}
+	else
+	{
+		std::cout << "Using: " << numCigarettes << " bonus\n";
+	}
+	
 	// Инициализация генератора случайных чисел
 	srand(static_cast<unsigned int>(time(nullptr)));
 
@@ -18,6 +60,9 @@ int main()
 
 	// Инициализация игры
 	Game game;
+	game.numApples = numApples; // Передаём количество яблок
+	game.numObstacles = numObstacles; // Передаём количество препядствий
+	game.numCigarettes = numCigarettes; // Передаём количество бонусов
 	InitGame(game);
 	
 	// Инициализация игровых часов
@@ -62,6 +107,6 @@ int main()
 		DrawGame(game, window);
         window.display();                                            // Отрисовка игры
 	}
-
+	Deinitialization(game);
 	return 0;
 }

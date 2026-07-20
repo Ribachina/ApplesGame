@@ -13,6 +13,6 @@ namespace ApplesGame
 	};
 	
 	void InitObstacles(Obstacle& obstacle, const sf::Texture& texture);
-	void DrawObstacles(Obstacle obstacle[], sf::RenderWindow& window);
+	void DrawObstacles(Obstacle* obstacles, int count, sf::RenderWindow& window);
 }
 

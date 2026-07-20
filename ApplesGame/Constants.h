@@ -10,14 +10,14 @@ namespace ApplesGame
 	const float PLAYER_SIZE = 40.f;    // Размер инрока
 	const float ACCELERATION = 20.f;   // Ускорение в секунду каждую секунду
 	const float MAX_SPEED = 400.f;     // Максимальная скорость
-	const int NUM_APPLES = 20;         // Количество яблок на экране
+	const int DEFAULT_NUM_APPLES = 20; // Количество яблок на экране по умолчанию
 	const float APPLE_SIZE = 30.f;     // Размер яблока
-	const int NUM_OBSTACLE = 5;        // Количество препятствий
+	const int DEFAULT_NUM_OBSTACLES = 5;// Количество препятствий по умолчанию
 	const float OBSTACLE_SIZE = 30.f;  // Размер препятствий
 	const float RESTART_DELAY = 2.f;   // Время до рестарта игры
 
-	const float CIGARETTE_SIZE = 20.f;  // Размер сигареты
-	const int NUM_CIGARETTES = 2;
+	const float CIGARETTE_SIZE = 20.f;  // Размер бонуса
+	const int DEFAULT_NUM_CIGARETTES = 2; // Количество бонусов по умолчанию
 }
 
 
