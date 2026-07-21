@@ -1,4 +1,5 @@
 #include "Obstacle.h"
+#include "Game.h"
 
 namespace ApplesGame
 {
@@ -13,11 +14,30 @@ namespace ApplesGame
 		SetSpriteRelativeOrigin(obstacle.sprite, 0.5f, 0.5f);
 
 	}
+	
 	void DrawObstacles(Obstacle* obstacles, int count, sf::RenderWindow& window)
 	{
 		for (int i = 0; i < count; ++i)
 		{
 			window.draw(obstacles[i].sprite);
+		}
+	}
+
+	void CollisionWithObstacle(Game& game)
+	{
+		// Проверка коллизии с препяствиями
+		for (int i = 0; i < game.numObstacles; ++i)
+		{
+			if (IsRectanglesCollide(game.player.position, { PLAYER_SIZE, PLAYER_SIZE },
+				game.obstacles[i].position, { OBSTACLE_SIZE, OBSTACLE_SIZE }))
+			{
+				if (!game.isGameOver)
+				{
+					game.audio.gameOverSound.play();
+				}
+				game.isGameOver = true;
+				game.gameOverTime = 0.f;
+			}
 		}
 	}
 }

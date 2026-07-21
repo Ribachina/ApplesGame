@@ -1,28 +1,71 @@
 #include "Game.h"
+#include "Apple.h"
+#include "Cigarette.h"
+#include "Obstacle.h"
 #include <cassert>
 #include <iostream>
 
 namespace ApplesGame
 {
+	void CustomSettings(int& numApples, int& numObstacles, int& numCigarettes) // Функция пользовательских настроек
+	{
+		std::cout << "=====Custom settings=====\n";
+		std::cout << "Enter num of apples: ";
+		std::cin >> numApples;
+		if (numApples <= 0)
+		{
+			numApples = 20;
+		}
+		std::cout << "Enter num of obstacles: ";
+		std::cin >> numObstacles;
+		if (numObstacles <= 0)
+		{
+			numObstacles = 5;
+		}
+		std::cout << "Enter num of bonuses: ";
+		std::cin >> numCigarettes;
+		if (numCigarettes <= 0)
+		{
+			numCigarettes = 2;
+		}
+	}
+	
+	void ReCreateGameObjects(Game& game)
+	{
+		delete[] game.apples;
+		delete[] game.obstacles;
+		delete[] game.cigarettes;
+
+		game.apples = nullptr;
+		game.obstacles = nullptr;
+		game.cigarettes = nullptr;
+
+		game.apples = new Apple[game.numApples];
+		game.obstacles = new Obstacle[game.numObstacles];
+		game.cigarettes = new Cigarette[game.numCigarettes];
+
+		for (int i = 0; i < game.numApples; ++i)
+		{
+			InitApples(game.apples[i], game.appleTexture);
+		}
+		for (int i = 0; i < game.numObstacles; ++i)
+		{
+			InitObstacles(game.obstacles[i], game.obstacleTexture);
+		}
+		for (int i = 0; i < game.numCigarettes; ++i)
+		{
+			InitCigarette(game.cigarettes[i], game.cigaretteTexture);
+		}
+
+		std::cout << "Recreated: " << game.numApples << " apples, " << game.numObstacles << " obstacles, " << game.numCigarettes << " bonuses\n";
+	}
+	
 	void ResetGame(Game& game)
 	{
 
 			InitPlayer(game.player, game);
 
-			for (int i = 0; i < game.numApples; ++i)
-			{
-				InitApples(game.apples[i], game.appleTexture);
-			}
-
-			for (int i = 0; i < game.numObstacles; ++i)
-			{
-				InitObstacles(game.obstacles[i], game.obstacleTexture);
-			}
-
-			for (int i = 0; i < game.numCigarettes; ++i)
-			{
-				InitCigarette(game.cigarettes[i], game.cigaretteTexture);
-			}
+			ReCreateGameObjects(game);
 
 			InitText(game.text);
 
@@ -46,68 +89,47 @@ namespace ApplesGame
 		game.obstacles = new Obstacle[game.numObstacles]; // Выделяем память для препядствий
 		game.cigarettes = new Cigarette[game.numCigarettes]; // Выделяем память для бонусов
 		
+		ReCreateGameObjects(game);
+		
 		InitAudio(game.audio);
 
 		ResetGame(game);
 	}
 
-	void CollisionWithApple(Game& game)
+	void AcceptGameMode(Game& game, int modeFlags) // Функция применения режима игры
 	{
-		// Проверка коллизии с яблоками
-		for (int i = 0; i < game.numApples; ++i)
+		game.modeFlags = modeFlags;
+
+		bool isHard = (modeFlags & MODE_HARD) != 0;
+		bool isEasy = (modeFlags & MODE_EASY) != 0;
+		bool isCustom = (modeFlags & MODE_CUSTOM) != 0;
+		bool isEnd = (modeFlags & MODE_END) != 0;
+		bool isSpeed = (modeFlags & MODE_SPEED) != 0;
+
+		if (isCustom)
 		{
-			if (!game.apples[i].isEaten && IsCirclesCollide(game.player.position, PLAYER_SIZE / 2.f,
-				game.apples[i].position, APPLE_SIZE / 2.f))
-			{
-				game.apples[i].position = GetRandomPositionInScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
-				game.apples[i].sprite.setPosition(game.apples[i].position.x, game.apples[i].position.y);
-
-				game.apples[i].isEaten = false;
-
-				game.numEatenApples++;
-
-				game.text.Score.setString("Score: " + std::to_string(game.numEatenApples));
-
-				game.audio.eatSound.play();
-			}
+			// Пользовательский режим указан в GameMain 51 строка 
 		}
-	}
-
-	void CollisionWithObstacle(Game& game)
-	{
-		// Проверка коллизии с препяствиями
-		for (int i = 0; i < game.numObstacles; ++i)
+		else if (isHard)
 		{
-			if (IsRectanglesCollide(game.player.position, { PLAYER_SIZE, PLAYER_SIZE },
-				game.obstacles[i].position, { OBSTACLE_SIZE, OBSTACLE_SIZE }))
-			{
-				if (!game.isGameOver)
-				{
-					game.audio.gameOverSound.play();
-				}
-				game.isGameOver = true;
-				game.gameOverTime = 0.f;
-			}
+			game.numApples = 50;
+			game.numObstacles = 10;
+			game.numCigarettes = 5;
 		}
-	}
-
-	void CollisionWithCigarette(Game& game)
-	{
-		for (int i = 0; i < game.numCigarettes; ++i)
+		else if (isEnd)
 		{
-			if (IsRectanglesCollide(game.player.position, { PLAYER_SIZE, PLAYER_SIZE },
-				game.cigarettes[i].position, {CIGARETTE_SIZE, CIGARETTE_SIZE}))
-			{
-				game.cigarettes[i].position = GetRandomPositionInScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
-				game.cigarettes[i].sprite.setPosition(game.cigarettes[i].position.x, game.cigarettes[i].position.y);
-
-				game.numEatenApples += 10;
-				
-				game.text.Score.setString("Score: " + std::to_string(game.numEatenApples));
-
-				game.audio.cigaretteSound.play();
-			}
+			game.numApples = 50;
+			game.numObstacles = 5;
+			game.numCigarettes = 2;
 		}
+		else // Classic Easy Speed
+		{
+			game.numApples = 20;
+			game.numObstacles = 5;
+			game.numCigarettes = 2;
+		}
+
+		ReCreateGameObjects(game);
 	}
 
 	// Обновление состояния игры
@@ -143,10 +165,20 @@ namespace ApplesGame
 			}
 
 			// Скорость игрока
-			game.player.speed += ACCELERATION * deltaTime;                       // скорость игрока увеличивается на значения ACCELERATION * deltaTime. Через 1с скорость = 100+20
-			if (game.player.speed > MAX_SPEED)
+			bool isEasy = (game.modeFlags & MODE_EASY) != 0;
+			bool isSpeed = (game.modeFlags & MODE_SPEED) != 0;
+
+			if (isEasy)
 			{
-				game.player.speed = MAX_SPEED;
+				game.player.speed = INITIAL_SPEED;
+			}
+			else if (!isSpeed) // Режим Speed находится в функции Collision with apple
+			{
+				game.player.speed += ACCELERATION * deltaTime;
+				if (game.player.speed > MAX_SPEED)
+				{
+					game.player.speed = MAX_SPEED;
+				}
 			}
 
 			// Движение игрока                                                        // Движение
@@ -190,8 +222,40 @@ namespace ApplesGame
 				game.isGameOver = true;
 				game.gameOverTime = 0.f;
 			}
-			// Проверка если набрано 100 очков
-			if (game.numEatenApples >= 50)
+			
+			bool isEnd = (game.modeFlags & MODE_END) != 0;
+			if (isEnd)
+			{
+				// Проверяем все ли яблоки съели для режима End
+				bool allEaten = true;
+				for (int i = 0; i < game.numApples; ++i)
+				{
+					if (!game.apples[i].isEaten)
+					{
+						allEaten = false;
+						break;
+					}
+				}
+
+				if (allEaten)
+				{
+					game.isGameWin = true;
+					game.text.GameWinLine1.setString("YOU WIN!!!");
+					game.text.GameWinLine1.setOrigin(game.text.GameWinLine1.getLocalBounds().width / 2, game.text.GameWinLine1.getLocalBounds().height / 2);
+					game.text.GameWinLine1.setPosition(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f - 110);
+
+					game.text.GameWinLine2.setString("Press R to restart");
+					game.text.GameWinLine2.setOrigin(game.text.GameWinLine2.getLocalBounds().width / 2, game.text.GameWinLine2.getLocalBounds().height / 2);
+					game.text.GameWinLine2.setPosition(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f + 20);
+
+					game.text.GameWinLine3.setString("Press Esc to exit");
+					game.text.GameWinLine3.setOrigin(game.text.GameWinLine3.getLocalBounds().width / 2, game.text.GameWinLine3.getLocalBounds().height / 2);
+					game.text.GameWinLine3.setPosition(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f + 70);
+				}
+			}
+			
+			// Проверка если набрано 50 очков
+			else if (game.numEatenApples >= 50)
 			{
 				game.isGameWin = true;
 				game.text.GameWinLine1.setString("YOU WIN!!!");
@@ -248,6 +312,9 @@ namespace ApplesGame
 		delete[] game.apples;
 		delete[] game.obstacles;
 		delete[] game.cigarettes;
+		game.apples = nullptr;
+		game.obstacles = nullptr;
+		game.cigarettes = nullptr;
 	}
 }
 

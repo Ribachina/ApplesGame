@@ -5,6 +5,8 @@
 
 namespace ApplesGame
 {
+	struct Game;
+	
 	struct Cigarette
 	{
 		// Cigarette data
@@ -13,4 +15,5 @@ namespace ApplesGame
 	};
 	void InitCigarette(Cigarette& cigarette, const sf::Texture& texture);
 	void DrawCigarette(Cigarette* cigarettes, int count, sf::RenderWindow& window);
+	void CollisionWithCigarette(Game& game);
 }

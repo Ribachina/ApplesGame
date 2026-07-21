@@ -5,6 +5,7 @@
 
 namespace ApplesGame
 {
+	struct Game;
 	struct Obstacle
 	{
 		// Obstacle data
@@ -14,5 +15,6 @@ namespace ApplesGame
 	
 	void InitObstacles(Obstacle& obstacle, const sf::Texture& texture);
 	void DrawObstacles(Obstacle* obstacles, int count, sf::RenderWindow& window);
+	void CollisionWithObstacle(Game& game);
 }
 

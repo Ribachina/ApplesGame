@@ -5,6 +5,7 @@
 
 namespace ApplesGame
 {
+	struct Game;
 	struct Apple
 	{
 		// Apples data
@@ -15,7 +16,7 @@ namespace ApplesGame
 
 	void InitApples(Apple& apple, const sf::Texture& texture);
 	void DrawApple(Apple* apples, int count, sf::RenderWindow& window);
-
+	void CollisionWithApple(Game& game);
 }
 
 

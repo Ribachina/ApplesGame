@@ -1,55 +1,54 @@
 ﻿#include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
-#include <iostream> // Использовал консоль. Была проблема, что не мог найти шрифт. Пришлось задавать много условий где можно поискать шрифт. Консоль нужна была для того
-                    // Чтобы выводить ошибку, если шрифт так и не найден
+#include <iostream> 
 #include "Constants.h"
 #include "Game.h"
 
-	
+int SelectGameMode()
+{
+	using namespace ApplesGame;
+
+	std::cout << "=====SELECT GAME MODE=====\n";
+	std::cout << "1. Classic (20 apples, 5 obstacles, 2 bonuses, speed grow)\n";
+	std::cout << "2. Easy (20 apples, 5 obstacles, 2 bonuses, speed FIX)\n";
+	std::cout << "3. Hard (50 apples, 10 obstacles, 5 bonuses, speed grow)\n";
+	std::cout << "4. Custom (20 apples, 5 obstacles, 2 bonuses, speed grow)\n";
+	std::cout << "5. End (50 apples NO RESPAWN, 5 obstacles, 2 bonuses, speed grow)\n";
+	std::cout << "6. Speed (20 apples, 5 obstacles, 2 bonuses, speed grow after eat)\n";
+	std::cout << "Your choise (1-4): ";
+
+	int choice;
+	std::cin >> choice;
+
+	switch (choice)
+	{
+	case 1: return 0;          // Classic - нет битов 
+	case 2: return MODE_EASY;  // Easy - бит 0010
+	case 3: return MODE_HARD;  // Hard - бит 0001
+	case 4: return MODE_CUSTOM;// Custom - бит 0100
+	case 5: return MODE_END;   // End - бит 1000
+	case 6: return MODE_SPEED; // Speed - бит 0001 0000
+	default: std::cout << "Error!!! Using 1,2,3 or 4. Using Classic mode now";
+		return 0;
+	}
+}
+
+
 int main()
 {
 	using namespace ApplesGame;
 
-	std::cout << "Enter num of apples (default 20): ";
-	int numApples;
-	std::cin >> numApples;  // Просим ввести количество яблок
+	int modeFlags = SelectGameMode();
 
-	if (numApples <= 0)
-	{
-		numApples = DEFAULT_NUM_APPLES;
-		std::cout << "Using default: " << numApples << " apples\n";
-	}
-	else
-	{
-		std::cout << "Using: " << numApples << " apples\n";
-	}
+	bool isCustom = (modeFlags & MODE_CUSTOM) != 0;
 
-	std::cout << "Enter num of obstacles (default 5): ";
-	int numObstacles;
-	std::cin >> numObstacles; // Просим ввести количество препядствий
+	int numApples = DEFAULT_NUM_APPLES;
+	int numObstacles = DEFAULT_NUM_OBSTACLES;
+	int numCigarettes = DEFAULT_NUM_CIGARETTES;
 
-	if (numObstacles <= 0)
+	if (isCustom)
 	{
-		numObstacles = DEFAULT_NUM_OBSTACLES;
-		std::cout << "Using default: " << numObstacles << " obstacles\n";
-	}
-	else
-	{
-		std::cout << "Using: " << numObstacles << " obstacles\n";
-	}
-
-	std::cout << "Enter num of bonus (default 2): ";
-	int numCigarettes;
-	std::cin >> numCigarettes; // ПРосим ввести количество бонусов на экране
-
-	if (numCigarettes <= 0)
-	{
-		numCigarettes = DEFAULT_NUM_CIGARETTES;
-		std::cout << "Using default: " << numCigarettes << " bonus\n";
-	}
-	else
-	{
-		std::cout << "Using: " << numCigarettes << " bonus\n";
+		CustomSettings(numApples, numObstacles, numCigarettes);
 	}
 	
 	// Инициализация генератора случайных чисел
@@ -61,8 +60,10 @@ int main()
 	// Инициализация игры
 	Game game;
 	game.numApples = numApples; // Передаём количество яблок
-	game.numObstacles = numObstacles; // Передаём количество препядствий
+	game.numObstacles = numObstacles; // Передаём количество препятствий
 	game.numCigarettes = numCigarettes; // Передаём количество бонусов
+	AcceptGameMode(game, modeFlags);
+
 	InitGame(game);
 	
 	// Инициализация игровых часов
@@ -107,6 +108,7 @@ int main()
 		DrawGame(game, window);
         window.display();                                            // Отрисовка игры
 	}
+	
 	Deinitialization(game);
 	return 0;
 }
