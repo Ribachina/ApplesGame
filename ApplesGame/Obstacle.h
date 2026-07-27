@@ -17,4 +17,3 @@ namespace ApplesGame
 	void DrawObstacles(Obstacle* obstacles, int count, sf::RenderWindow& window);
 	void CollisionWithObstacle(Game& game);
 }
-

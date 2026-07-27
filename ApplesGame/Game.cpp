@@ -84,12 +84,8 @@ namespace ApplesGame
 		game.appleTexture.loadFromFile(RESOURCES_PATH + "Coffe.png");
 		game.obstacleTexture.loadFromFile(RESOURCES_PATH + "Maks.png");
 		game.cigaretteTexture.loadFromFile(RESOURCES_PATH + "Cigarette.png");
-
-		game.apples = new Apple[game.numApples]; // Выделяем память для яблок
-		game.obstacles = new Obstacle[game.numObstacles]; // Выделяем память для препядствий
-		game.cigarettes = new Cigarette[game.numCigarettes]; // Выделяем память для бонусов
 		
-		ReCreateGameObjects(game);
+		//ReCreateGameObjects(game);
 		
 		InitAudio(game.audio);
 
@@ -105,6 +101,7 @@ namespace ApplesGame
 		bool isCustom = (modeFlags & MODE_CUSTOM) != 0;
 		bool isEnd = (modeFlags & MODE_END) != 0;
 		bool isSpeed = (modeFlags & MODE_SPEED) != 0;
+		bool isInfinity = (modeFlags & MODE_INFINITY) != 0;
 
 		if (isCustom)
 		{
@@ -122,6 +119,12 @@ namespace ApplesGame
 			game.numObstacles = 5;
 			game.numCigarettes = 2;
 		}
+		else if (isInfinity)
+		{
+			game.numApples = 20;
+			game.numObstacles = 5;
+			game.numCigarettes = 0;
+		}
 		else // Classic Easy Speed
 		{
 			game.numApples = 20;
@@ -129,7 +132,7 @@ namespace ApplesGame
 			game.numCigarettes = 2;
 		}
 
-		ReCreateGameObjects(game);
+		//ReCreateGameObjects(game);
 	}
 
 	// Обновление состояния игры
@@ -224,7 +227,13 @@ namespace ApplesGame
 			}
 			
 			bool isEnd = (game.modeFlags & MODE_END) != 0;
-			if (isEnd)
+			bool isInfinity = (game.modeFlags & MODE_INFINITY) != 0;
+
+			if (isInfinity)
+			{
+
+			}
+			else if (isEnd)
 			{
 				// Проверяем все ли яблоки съели для режима End
 				bool allEaten = true;
@@ -317,4 +326,3 @@ namespace ApplesGame
 		game.cigarettes = nullptr;
 	}
 }
-

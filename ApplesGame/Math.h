@@ -27,5 +27,3 @@ namespace ApplesGame
 
 	void SetSpriteRelativeOrigin(sf::Sprite& sprite, float originX, float originY);
 }
-
-

@@ -39,5 +39,3 @@ namespace ApplesGame
 		sprite.setOrigin(originX * spriteRect.width, originY * spriteRect.height);
 	}
 }
-
-

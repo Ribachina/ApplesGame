@@ -28,4 +28,3 @@ namespace ApplesGame
 	
 	void DrawPlayer(Player& player, sf::RenderWindow& window);
 }
-

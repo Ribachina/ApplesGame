@@ -18,5 +18,3 @@ namespace ApplesGame
 	void DrawApple(Apple* apples, int count, sf::RenderWindow& window);
 	void CollisionWithApple(Game& game);
 }
-
-
