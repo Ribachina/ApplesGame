@@ -34,6 +34,7 @@ namespace ApplesGame
 				if (!game.isGameOver)
 				{
 					game.audio.gameOverSound.play();
+					UpdateLeaderboard(game);
 				}
 				game.isGameOver = true;
 				game.gameOverTime = 0.f;

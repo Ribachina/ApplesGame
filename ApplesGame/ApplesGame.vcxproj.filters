@@ -63,5 +63,8 @@
     <ClInclude Include="Cigarette.h">
       <Filter>Sources</Filter>
     </ClInclude>
+    <ClInclude Include="Record.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

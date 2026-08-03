@@ -80,6 +80,12 @@ namespace ApplesGame
 		text.GameStart.setString("Press Enter to start");
 		text.GameStart.setOrigin(text.GameStart.getLocalBounds().width / 2, text.GameStart.getLocalBounds().height / 2);
 		text.GameStart.setPosition(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f);
+
+		// Инициализация таблицы лидеров
+		text.LeaderBoard.setFont(text.font);
+		text.LeaderBoard.setCharacterSize(40);
+		text.LeaderBoard.setFillColor(sf::Color::White);
+		text.LeaderBoard.setPosition(10.f, 80.f);
 	}
 	void DrawText(Text& text, sf::RenderWindow& window, Game& game)
 	{
@@ -92,12 +98,43 @@ namespace ApplesGame
 		// Отрисовывем клавиши для перезапуска и закрытия игры
 		window.draw(text.RestartAndExit);
 
+		// Отрисовываем текст для начала игры
+		if (!game.isGameStart)
+		{
+			window.draw(text.GameStart);
+		}
+		
+		// Не важно GameOver или GameWin отрисовываем таблицу
+		if (game.isGameOver || game.isGameWin)
+		{
+			std::string leaderboardStr = "===== LEADERBOARD =====\n";
+			for (int i = 0; i < game.leaderboard.size(); ++i)
+			{
+				const Record& record = game.leaderboard[i];
+				leaderboardStr += std::to_string(i + 1) + ". "; // Номер места
+				leaderboardStr += record.name;                  // Имя игрока
+
+				int dotsCount = 20 - record.name.length();
+				for (int j = 0; j < dotsCount; ++j)
+				{
+					leaderboardStr += ".";
+				}
+				leaderboardStr += " " + std::to_string(record.score) + "\n";
+			}
+			
+			leaderboardStr += "=======================";
+
+			text.LeaderBoard.setString(leaderboardStr);
+			window.draw(text.LeaderBoard);
+		}
+		
 		// Отрисовываем текст после проигрыша
 		if (game.isGameOver)
 		{
 			window.draw(text.gameOverText);
 			window.draw(text.restartGameText);
 		}
+
 		// Отрисовываем текст после победы
 		if (game.isGameWin)
 		{
@@ -105,10 +142,6 @@ namespace ApplesGame
 			window.draw(text.GameWinLine2);
 			window.draw(text.GameWinLine3);
 		}
-		// Отрисовываем текст для начала игры
-		if (!game.isGameStart)
-		{
-			window.draw(text.GameStart);
-		}
+		
 	}
 }

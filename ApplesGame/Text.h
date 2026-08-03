@@ -19,6 +19,7 @@ namespace ApplesGame
 		sf::Text GameWinLine2;
 		sf::Text GameWinLine3;
 		sf::Text GameStart;
+		sf::Text LeaderBoard;                                              // Таблица лидеров
 	};
 	
 	void InitText(Text& text);

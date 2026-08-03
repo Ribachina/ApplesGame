@@ -4,6 +4,7 @@
 #include "Obstacle.h"
 #include <cassert>
 #include <iostream>
+#include <algorithm>
 
 namespace ApplesGame
 {
@@ -75,6 +76,8 @@ namespace ApplesGame
 			game.isGameWin = false;
 			game.isGameStart = false;
 			game.text.Score.setString("Score: 0");
+
+			UpdateLeaderboard(game);
 	}
 
 	
@@ -84,6 +87,14 @@ namespace ApplesGame
 		game.appleTexture.loadFromFile(RESOURCES_PATH + "Coffe.png");
 		game.obstacleTexture.loadFromFile(RESOURCES_PATH + "Maks.png");
 		game.cigaretteTexture.loadFromFile(RESOURCES_PATH + "Cigarette.png");
+
+		game.leaderboard = {
+		{"Alex", 45},
+		{"Sasha", 40},
+		{"Shurik", 35},
+		{"Anchoys", 30},
+		{"Shnurok", 25},
+		};
 		
 		//ReCreateGameObjects(game);
 		
@@ -135,6 +146,43 @@ namespace ApplesGame
 		//ReCreateGameObjects(game);
 	}
 
+	void UpdateLeaderboard(Game& game)
+	{
+		for (int i = game.leaderboard.size() - 1; i >= 0; --i)
+		{
+			if (game.leaderboard[i].name == "Player")
+			{
+				game.leaderboard.erase(game.leaderboard.begin() + i);  // Удаляем и сдвигаем влево
+			}
+		}
+		
+		if (game.numEatenApples > 0)
+		{
+			Record playerRecord;
+			playerRecord.name = "Player";
+			playerRecord.score = game.numEatenApples;
+			game.leaderboard.push_back(playerRecord);  // Добавляем игрока в конец таблицы
+		}
+		
+		for (int i = 1; i < game.leaderboard.size(); ++i) // Сортируем по убыванию (insertion Sort)
+		{
+			Record key = game.leaderboard[i];
+			int j = i - 1;
+
+			while (j >= 0 && game.leaderboard[j].score < key.score)
+			{
+				game.leaderboard[j + 1] = game.leaderboard[j];
+				j--;
+			}
+			game.leaderboard[j + 1] = key;
+		}
+
+		if (game.leaderboard.size() > 10)
+		{
+			game.leaderboard.resize(10); // Максимум 10 игроков
+		}
+	}
+	
 	// Обновление состояния игры
 	void UpdateGame(Game& game, float deltaTime)
 	{
@@ -220,6 +268,7 @@ namespace ApplesGame
 				if (!game.isGameOver)
 				{
 					game.audio.gameOverSound.play();
+					UpdateLeaderboard(game);
 				}
 				// Игра останавливается
 				game.isGameOver = true;
@@ -248,6 +297,8 @@ namespace ApplesGame
 
 				if (allEaten)
 				{
+					UpdateLeaderboard(game);
+
 					game.isGameWin = true;
 					game.text.GameWinLine1.setString("YOU WIN!!!");
 					game.text.GameWinLine1.setOrigin(game.text.GameWinLine1.getLocalBounds().width / 2, game.text.GameWinLine1.getLocalBounds().height / 2);
@@ -266,6 +317,8 @@ namespace ApplesGame
 			// Проверка если набрано 50 очков
 			else if (game.numEatenApples >= 50)
 			{
+				UpdateLeaderboard(game);
+				
 				game.isGameWin = true;
 				game.text.GameWinLine1.setString("YOU WIN!!!");
 				game.text.GameWinLine1.setOrigin(game.text.GameWinLine1.getLocalBounds().width / 2, game.text.GameWinLine1.getLocalBounds().height / 2);

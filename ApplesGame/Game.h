@@ -4,6 +4,7 @@
 #include "Text.h"
 #include <SFML/Audio.hpp>
 #include "Audio.h"
+#include "Record.h"
 
 namespace ApplesGame
 {
@@ -41,6 +42,8 @@ namespace ApplesGame
 		sf::Texture obstacleTexture;
 		sf::Texture cigaretteTexture;
 
+		std::vector<Record> leaderboard;
+
 	};
 
 	void ResetGame(Game& game);
@@ -51,4 +54,5 @@ namespace ApplesGame
 	void CustomSettings(int& numApples, int& numObstacles, int& numCigarettes); // Функция пользовательских настроек
 	void AcceptGameMode(Game& game, int modeFlags);
 	void ReCreateGameObjects(Game& game);
+	void UpdateLeaderboard(Game& game); // Функция таблицы лидеров. Вызываем при победе, столкновении с препятствием или стеной.
 }
