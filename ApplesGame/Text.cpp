@@ -86,6 +86,7 @@ namespace ApplesGame
 		text.LeaderBoard.setCharacterSize(40);
 		text.LeaderBoard.setFillColor(sf::Color::White);
 		text.LeaderBoard.setPosition(10.f, 80.f);
+		text.LeaderBoard.setString("");
 	}
 	void DrawText(Text& text, sf::RenderWindow& window, Game& game)
 	{
@@ -107,21 +108,45 @@ namespace ApplesGame
 		// Не важно GameOver или GameWin отрисовываем таблицу
 		if (game.isGameOver || game.isGameWin)
 		{
-			std::string leaderboardStr = "===== LEADERBOARD =====\n";
-			for (int i = 0; i < game.leaderboard.size(); ++i)
+			std::vector<std::pair<std::string, int>>sortedEntries;     // Вектор, каждый элемент которого пара: строка и число
+			for (const auto& [name, score] : game.leaderboard)         // Извлекаем строку в name, а число в score
 			{
-				const Record& record = game.leaderboard[i];
-				leaderboardStr += std::to_string(i + 1) + ". "; // Номер места
-				leaderboardStr += record.name;                  // Имя игрока
+				sortedEntries.push_back({ name, score });              // Создаём пару имя и очки, и добавляем в конец вектора и создаём пару в std::pair { }
+			}
 
-				int dotsCount = 20 - record.name.length();
-				for (int j = 0; j < dotsCount; ++j)
+			for (int i = 1; i < sortedEntries.size(); ++i)             // Сортируем по убыванию очков
+			{
+				auto key = sortedEntries[i];                           // key - текущий элемент, который хотим вставить в отсортированную часть
+				int j = i - 1;                                         // индекс предыдущего элемента
+
+				while (j >= 0 && sortedEntries[j].second < key.second) // Двигаем элементы вправо, пока не найдём место для key
+				{
+					sortedEntries[j + 1] = sortedEntries[j];           // сдвигаем элементы вправо на освободившееся место
+					j--;
+				}
+				sortedEntries[j + 1] = key;                            // как нашли место вставляем key
+			}
+
+			if (sortedEntries.size() > 10)
+			{
+				sortedEntries.resize(10);                              // Оставляем только 10 элементов
+			}
+
+			std::string leaderboardStr = "===== LEADERBOARD =====\n";
+
+			for (int i = 0; i < sortedEntries.size(); ++i)             // Перебираем все записи в векторе
+			{
+				const auto& [name, score] = sortedEntries[i];
+				leaderboardStr += std::to_string(i + 1) + ". ";        // превращаем число в строку
+				leaderboardStr += name;                                // добавляем ник Player
+
+				int dotsCount = 20 - name.length();                    // Добавим точки (20макс), чтобы красиво расположить ники в таблице лидеров
+				for (int j = 0; j < dotsCount; ++j)                    // Добавляем точки
 				{
 					leaderboardStr += ".";
 				}
-				leaderboardStr += " " + std::to_string(record.score) + "\n";
+				leaderboardStr += " " + std::to_string(score) + "\n";
 			}
-			
 			leaderboardStr += "=======================";
 
 			text.LeaderBoard.setString(leaderboardStr);

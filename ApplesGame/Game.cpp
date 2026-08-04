@@ -88,13 +88,11 @@ namespace ApplesGame
 		game.obstacleTexture.loadFromFile(RESOURCES_PATH + "Maks.png");
 		game.cigaretteTexture.loadFromFile(RESOURCES_PATH + "Cigarette.png");
 
-		game.leaderboard = {
-		{"Alex", 45},
-		{"Sasha", 40},
-		{"Shurik", 35},
-		{"Anchoys", 30},
-		{"Shnurok", 25},
-		};
+		game.leaderboard["Alex"] = 45;
+		game.leaderboard["Sasha"] = 40;
+		game.leaderboard["Shurik"] = 35;
+		game.leaderboard["Anchoys"] = 30;
+		game.leaderboard["Shnurok"] = 25;
 		
 		//ReCreateGameObjects(game);
 		
@@ -148,38 +146,15 @@ namespace ApplesGame
 
 	void UpdateLeaderboard(Game& game)
 	{
-		for (int i = game.leaderboard.size() - 1; i >= 0; --i)
+		auto it = game.leaderboard.find("Player");
+		if (it != game.leaderboard.end())
 		{
-			if (game.leaderboard[i].name == "Player")
-			{
-				game.leaderboard.erase(game.leaderboard.begin() + i);  // Удаляем и сдвигаем влево
-			}
+			game.leaderboard.erase(it);  // Удаляем Player через итератор it
 		}
 		
-		if (game.numEatenApples > 0)
+		if (game.numEatenApples > 0) // Добавляем ник, только если кол-во очков больше 0
 		{
-			Record playerRecord;
-			playerRecord.name = "Player";
-			playerRecord.score = game.numEatenApples;
-			game.leaderboard.push_back(playerRecord);  // Добавляем игрока в конец таблицы
-		}
-		
-		for (int i = 1; i < game.leaderboard.size(); ++i) // Сортируем по убыванию (insertion Sort)
-		{
-			Record key = game.leaderboard[i];
-			int j = i - 1;
-
-			while (j >= 0 && game.leaderboard[j].score < key.score)
-			{
-				game.leaderboard[j + 1] = game.leaderboard[j];
-				j--;
-			}
-			game.leaderboard[j + 1] = key;
-		}
-
-		if (game.leaderboard.size() > 10)
-		{
-			game.leaderboard.resize(10); // Максимум 10 игроков
+			game.leaderboard["Player"] = game.numEatenApples; // Создаём ник Player и обновляем значение из съеденных яблок
 		}
 	}
 	

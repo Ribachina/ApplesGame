@@ -5,6 +5,8 @@
 #include <SFML/Audio.hpp>
 #include "Audio.h"
 #include "Record.h"
+#include <map>
+#include <string>
 
 namespace ApplesGame
 {
@@ -42,7 +44,7 @@ namespace ApplesGame
 		sf::Texture obstacleTexture;
 		sf::Texture cigaretteTexture;
 
-		std::vector<Record> leaderboard;
+		std::map<std::string, int> leaderboard;
 
 	};
 
