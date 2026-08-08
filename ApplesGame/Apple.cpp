@@ -25,6 +25,7 @@ namespace ApplesGame
 			window.draw(apple.sprite);
 		}
 	}
+	}
 
 	void CollisionWithApple(Game& game)
 	{
