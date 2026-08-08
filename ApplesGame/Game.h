@@ -26,10 +26,6 @@ namespace ApplesGame
 		std::vector<Cigarette> cigarettes; // Vector на бонусы
 		Text text;
 		Audio audio;
-		Cigarette* cigarettes = nullptr; // Указатель на массив бонусов
-
-		// Режим игры
-		int modeFlags = 0;
 		
 		//Количество объектов
 		int numApples = 20;    // Количество яблок по умолчанию

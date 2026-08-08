@@ -28,7 +28,6 @@ namespace ApplesGame
 			}
 		}
 	}
-	}
 
 	void CollisionWithApple(Game& game)
 	{
