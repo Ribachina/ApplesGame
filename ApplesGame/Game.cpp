@@ -263,7 +263,7 @@ namespace ApplesGame
 				bool allEaten = true;
 				for (const auto& apple : game.apples)
 				{
-					if (apple.isEaten)
+					if (!apple.isEaten)
 					{
 						allEaten = false;
 						break;

@@ -36,7 +36,7 @@ namespace ApplesGame
 		int numObstacles = 5;  // Количество препятствий по умолчанию
 		int numCigarettes = 2; // Количество бонусов по умолчанию
 		
-		// Состояние игры и состояния
+		// Состояние и режим игры
 		int modeFlags = 0;
 		int numEatenApples = 0;
 		bool isGameOver = false;

@@ -22,7 +22,10 @@ namespace ApplesGame
 		// ќтрисовываем массив €блок
 		for (const auto& apple : apples)
 		{
-			window.draw(apple.sprite);
+			if (!apple.isEaten)
+			{
+				window.draw(apple.sprite);
+			}
 		}
 	}
 	}
