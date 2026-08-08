@@ -17,16 +17,14 @@ namespace ApplesGame
 
 	}
 
-	void DrawApple(Apple* apples, int count, sf::RenderWindow& window)
+	void DrawApple(const std::vector<Apple>& apples, sf::RenderWindow& window)
 	{
 		// ќтрисовываем массив €блок
-		for (int i = 0; i < count; ++i)
+		for (const auto& apple : apples)
 		{
-			if (!apples[i].isEaten)
-			{
-				window.draw(apples[i].sprite);
-			}
+			window.draw(apple.sprite);
 		}
+	}
 	}
 
 	void CollisionWithApple(Game& game)
@@ -35,20 +33,20 @@ namespace ApplesGame
 		bool isEnd = (game.modeFlags & MODE_END) != 0;
 		bool isSpeed = (game.modeFlags & MODE_SPEED) != 0;
 		
-		for (int i = 0; i < game.numApples; ++i)
+		for (auto& apple : game.apples)
 		{
-			if (!game.apples[i].isEaten && IsCirclesCollide(game.player.position, PLAYER_SIZE / 2.f,
-				game.apples[i].position, APPLE_SIZE / 2.f))
+			if (!apple.isEaten && IsCirclesCollide(game.player.position, PLAYER_SIZE / 2.f,
+				apple.position, APPLE_SIZE / 2.f))
 			{
 				if (isEnd) // яблоко не респавнитс€
 				{
-					game.apples[i].isEaten = true;
+					apple.isEaten = true;
 				}
 				else
 				{
-					game.apples[i].position = GetRandomPositionInScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
-					game.apples[i].sprite.setPosition(game.apples[i].position.x, game.apples[i].position.y);
-					game.apples[i].isEaten = false;
+					apple.position = GetRandomPositionInScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
+					apple.sprite.setPosition(apple.position.x, apple.position.y);
+					apple.isEaten = false;
 				}
 				if (isSpeed) // –ежим Speed —корость растЄт при поедании €блок
 				{

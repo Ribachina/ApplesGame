@@ -14,23 +14,23 @@ namespace ApplesGame {
 		SetSpriteRelativeOrigin(cigarette.sprite, 0.5f, 0.5f);
 	}
 	
-	void DrawCigarette(Cigarette* cigarettes, int count, sf::RenderWindow& window)
+	void DrawCigarette(const std::vector<Cigarette>& cigarettes, sf::RenderWindow& window)
 	{
-		for (int i = 0; i < count; ++i)
+		for (const auto& cigarette : cigarettes)
 		{
-			window.draw(cigarettes[i].sprite);
+			window.draw(cigarette.sprite);
 		}
 	}
 
 	void CollisionWithCigarette(Game& game)
 	{
-		for (int i = 0; i < game.numCigarettes; ++i)
+		for (auto& cigarette : game.cigarettes)
 		{
 			if (IsRectanglesCollide(game.player.position, { PLAYER_SIZE, PLAYER_SIZE },
-				game.cigarettes[i].position, { CIGARETTE_SIZE, CIGARETTE_SIZE }))
+				cigarette.position, { CIGARETTE_SIZE, CIGARETTE_SIZE }))
 			{
-				game.cigarettes[i].position = GetRandomPositionInScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
-				game.cigarettes[i].sprite.setPosition(game.cigarettes[i].position.x, game.cigarettes[i].position.y);
+				cigarette.position = GetRandomPositionInScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
+				cigarette.sprite.setPosition(cigarette.position.x, cigarette.position.y);
 
 				game.numEatenApples += 10;
 

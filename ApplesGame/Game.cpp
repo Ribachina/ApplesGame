@@ -33,32 +33,32 @@ namespace ApplesGame
 	
 	void ReCreateGameObjects(Game& game)
 	{
-		delete[] game.apples;
+		/*delete[] game.apples;
 		delete[] game.obstacles;
 		delete[] game.cigarettes;
 
 		game.apples = nullptr;
 		game.obstacles = nullptr;
-		game.cigarettes = nullptr;
+		game.cigarettes = nullptr;*/
 
-		game.apples = new Apple[game.numApples];
-		game.obstacles = new Obstacle[game.numObstacles];
-		game.cigarettes = new Cigarette[game.numCigarettes];
+		game.apples.resize(game.numApples);
+		game.obstacles.resize(game.numObstacles);
+		game.cigarettes.resize(game.numCigarettes);
 
-		for (int i = 0; i < game.numApples; ++i)
+		for (auto& apple : game.apples)
 		{
-			InitApples(game.apples[i], game.appleTexture);
+			InitApples(apple, game.appleTexture);
 		}
-		for (int i = 0; i < game.numObstacles; ++i)
+		for (auto& obstacle : game.obstacles)
 		{
-			InitObstacles(game.obstacles[i], game.obstacleTexture);
+			InitObstacles(obstacle, game.obstacleTexture);
 		}
-		for (int i = 0; i < game.numCigarettes; ++i)
+		for (auto& cigarette : game.cigarettes)
 		{
-			InitCigarette(game.cigarettes[i], game.cigaretteTexture);
+			InitCigarette(cigarette, game.cigaretteTexture);
 		}
 
-		std::cout << "Recreated: " << game.numApples << " apples, " << game.numObstacles << " obstacles, " << game.numCigarettes << " bonuses\n";
+		std::cout << "Recreated: " << game.apples.size() << " apples, " << game.obstacles.size() << " obstacles, " << game.cigarettes.size() << " bonuses\n";
 	}
 	
 	void ResetGame(Game& game)
@@ -261,9 +261,9 @@ namespace ApplesGame
 			{
 				// Проверяем все ли яблоки съели для режима End
 				bool allEaten = true;
-				for (int i = 0; i < game.numApples; ++i)
+				for (const auto& apple : game.apples)
 				{
-					if (!game.apples[i].isEaten)
+					if (apple.isEaten)
 					{
 						allEaten = false;
 						break;
@@ -335,22 +335,19 @@ namespace ApplesGame
 		// Отрисовка игрока
 		DrawPlayer(game.player, window);
 		// Отрисовка массива яблок
-		DrawApple(game.apples, game.numApples, window);
+		DrawApple(game.apples, window);
 		// Отрисовываем массив препятсивий
-		DrawObstacles(game.obstacles, game.numObstacles, window);
+		DrawObstacles(game.obstacles, window);
         // Отрисовываем бонусные сигареты
-		DrawCigarette(game.cigarettes, game.numCigarettes, window);
+		DrawCigarette(game.cigarettes, window);
 		// Отрисовываем текст
 		DrawText(game.text, window, game);
 	}
 
 	void Deinitialization(Game& game)
 	{
-		delete[] game.apples;
-		delete[] game.obstacles;
-		delete[] game.cigarettes;
-		game.apples = nullptr;
-		game.obstacles = nullptr;
-		game.cigarettes = nullptr;
+		game.apples.clear();
+		game.obstacles.clear();
+		game.cigarettes.clear();
 	}
 }

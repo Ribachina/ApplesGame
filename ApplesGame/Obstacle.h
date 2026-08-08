@@ -2,6 +2,7 @@
 #include "Math.h"
 #include <SFML/Graphics.hpp>
 #include "Constants.h"
+#include "vector"
 
 namespace ApplesGame
 {
@@ -14,6 +15,6 @@ namespace ApplesGame
 	};
 	
 	void InitObstacles(Obstacle& obstacle, const sf::Texture& texture);
-	void DrawObstacles(Obstacle* obstacles, int count, sf::RenderWindow& window);
+	void DrawObstacles(const std::vector<Obstacle>& obstacles, sf::RenderWindow& window);
 	void CollisionWithObstacle(Game& game);
 }

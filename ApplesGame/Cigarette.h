@@ -14,6 +14,6 @@ namespace ApplesGame
 		sf::Sprite sprite;
 	};
 	void InitCigarette(Cigarette& cigarette, const sf::Texture& texture);
-	void DrawCigarette(Cigarette* cigarettes, int count, sf::RenderWindow& window);
+	void DrawCigarette(const std::vector<Cigarette>& cigarettes, sf::RenderWindow& window);
 	void CollisionWithCigarette(Game& game);
 }

@@ -15,21 +15,21 @@ namespace ApplesGame
 
 	}
 	
-	void DrawObstacles(Obstacle* obstacles, int count, sf::RenderWindow& window)
+	void DrawObstacles(const std::vector<Obstacle>& obstacles, sf::RenderWindow& window)
 	{
-		for (int i = 0; i < count; ++i)
+		for (const auto& obstacle : obstacles)
 		{
-			window.draw(obstacles[i].sprite);
+			window.draw(obstacle.sprite);
 		}
 	}
 
 	void CollisionWithObstacle(Game& game)
 	{
 		// Проверка коллизии с препяствиями
-		for (int i = 0; i < game.numObstacles; ++i)
+		for (auto& obstacle : game.obstacles)
 		{
 			if (IsRectanglesCollide(game.player.position, { PLAYER_SIZE, PLAYER_SIZE },
-				game.obstacles[i].position, { OBSTACLE_SIZE, OBSTACLE_SIZE }))
+				obstacle.position, { OBSTACLE_SIZE, OBSTACLE_SIZE }))
 			{
 				if (!game.isGameOver)
 				{

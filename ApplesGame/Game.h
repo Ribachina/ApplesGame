@@ -7,19 +7,23 @@
 #include "Record.h"
 #include <map>
 #include <string>
+#include "Apple.h"
+#include "Cigarette.h"
+#include "Obstacle.h"
 
 namespace ApplesGame
 {
-	struct Apple;
-	struct Cigarette;
-	struct Obstacle;
+	//struct Apple;
+	//struct Cigarette;
+	//struct Obstacle;
 	
 	struct Game
 	{
 		// Игровые объекты
 		Player player;
-		Apple* apples = nullptr;         // Указатель на массив яблок
-		Obstacle* obstacles = nullptr;   // Указатель на массив препятствий
+		std::vector<Apple> apples;         // Vector на яблоки
+		std::vector<Obstacle> obstacles;   // Vector на препятствия
+		std::vector<Cigarette> cigarettes; // Vector на бонусы
 		Text text;
 		Audio audio;
 		Cigarette* cigarettes = nullptr; // Указатель на массив бонусов
@@ -27,12 +31,13 @@ namespace ApplesGame
 		// Режим игры
 		int modeFlags = 0;
 		
-		// Количество объектов
-		int numApples = DEFAULT_NUM_APPLES; // Количество яблок по умолчанию
-		int numObstacles = DEFAULT_NUM_OBSTACLES; // Количество препятствий по умолчанию
-		int numCigarettes = DEFAULT_NUM_CIGARETTES; // Количество бонусов по умолчанию
+		//Количество объектов
+		int numApples = 20;    // Количество яблок по умолчанию
+		int numObstacles = 5;  // Количество препятствий по умолчанию
+		int numCigarettes = 2; // Количество бонусов по умолчанию
 		
-		// Состояние игры
+		// Состояние игры и состояния
+		int modeFlags = 0;
 		int numEatenApples = 0;
 		bool isGameOver = false;
 		bool isGameWin = false;
