@@ -8,6 +8,28 @@
 
 namespace ApplesGame
 {
+	void PushState(Game& game, GameState state)
+	{
+		game.stateStack.push_back(state);
+	}
+
+	void PopState(Game& game)
+	{
+		if (!game.stateStack.empty())
+		{
+			game.stateStack.pop_back();
+		}
+	}
+
+	GameState GetCurrentState(const Game& game)
+	{
+		if (game.stateStack.empty())
+		{
+			return GameState::StartScreen;
+		}
+		return game.stateStack.back();
+	}
+
 	void CustomSettings(int& numApples, int& numObstacles, int& numCigarettes) // Функция пользовательских настроек
 	{
 		std::cout << "=====Custom settings=====\n";
@@ -33,14 +55,6 @@ namespace ApplesGame
 	
 	void ReCreateGameObjects(Game& game)
 	{
-		/*delete[] game.apples;
-		delete[] game.obstacles;
-		delete[] game.cigarettes;
-
-		game.apples = nullptr;
-		game.obstacles = nullptr;
-		game.cigarettes = nullptr;*/
-
 		game.apples.resize(game.numApples);
 		game.obstacles.resize(game.numObstacles);
 		game.cigarettes.resize(game.numCigarettes);
@@ -94,10 +108,9 @@ namespace ApplesGame
 		game.leaderboard["Anchoys"] = 30;
 		game.leaderboard["Shnurok"] = 25;
 		
-		//ReCreateGameObjects(game);
-		
+		game.stateStack.clear();
+		PushState(game, GameState::StartScreen);
 		InitAudio(game.audio);
-
 		ResetGame(game);
 	}
 
@@ -140,10 +153,9 @@ namespace ApplesGame
 			game.numObstacles = 5;
 			game.numCigarettes = 2;
 		}
-
-		//ReCreateGameObjects(game);
 	}
 
+	// Обновление таблицы лидеров
 	void UpdateLeaderboard(Game& game)
 	{
 		auto it = game.leaderboard.find("Player");
@@ -158,143 +170,119 @@ namespace ApplesGame
 		}
 	}
 	
-	// Обновление состояния игры
-	void UpdateGame(Game& game, float deltaTime)
+	// Обновление экрана начала игры
+	void UpdateStartScreen(Game& game) 
 	{
-		if (!game.isGameStart)
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
 		{
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
-			{
-				game.isGameStart = true;
-			}
+			PushState(game, GameState::Gameplay);
+		}
+	}
+
+	// Обновление игрового процесса
+	void UpdateGameplay(Game& game, float deltaTime)
+	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+		{
+			PushState(game, GameState::ConfirmExit);
 			return;
 		}
 		
-		if (!game.isGameOver && !game.isGameWin)
-			// Управление
+		// Управление
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::D))                         // проверяем
+		{                                                                                                                           // какие
+			game.player.direction = PlayerDirection::Right;                                                                         // клавиши
+		}                                                                                                                           // нажаты
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::W))                       // и
+		{                                                                                                                           // меняем
+			game.player.direction = PlayerDirection::Up;                                                                            // направление
+		}                                                                                                                           // движения
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 		{
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::D))                         // проверяем
-			{                                                                                                                           // какие
-				game.player.direction = PlayerDirection::Right;                                                                         // клавиши
-			}                                                                                                                           // нажаты
-			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::W))                       // и
-			{                                                                                                                           // меняем
-				game.player.direction = PlayerDirection::Up;                                                                            // направление
-			}                                                                                                                           // движения
-			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+			game.player.direction = PlayerDirection::Left;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) || sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		{
+			game.player.direction = PlayerDirection::Down;
+		}
+
+		// Скорость игрока
+		bool isEasy = (game.modeFlags & MODE_EASY) != 0;
+		bool isSpeed = (game.modeFlags & MODE_SPEED) != 0;
+
+		if (isEasy)
+		{
+			game.player.speed = INITIAL_SPEED;
+		}
+		else if (!isSpeed) // Режим Speed находится в функции Collision with apple
+		{
+			game.player.speed += ACCELERATION * deltaTime;
+			if (game.player.speed > MAX_SPEED)
 			{
-				game.player.direction = PlayerDirection::Left;
+				game.player.speed = MAX_SPEED;
 			}
-			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) || sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		}
+
+		// Движение игрока                                                        // Движение
+		switch (game.player.direction)                                            // по
+		{                                                                         // выбранному
+		case PlayerDirection::Right:                                              // направлению
+		{                                                                         // скорость
+			game.player.position.x += game.player.speed * deltaTime;              // умножается
+			break;                                                                // на
+		}                                                                         // deltaTime
+		case PlayerDirection::Up:                                                 // для  
+		{                                                                         // независимости
+			game.player.position.y -= game.player.speed * deltaTime;              // от
+			break;                                                                // кадров
+		}                                                                         // в
+		case PlayerDirection::Left:                                               // секунду
+		{
+			game.player.position.x -= game.player.speed * deltaTime;
+			break;
+		}
+		case PlayerDirection::Down:
+		{
+			game.player.position.y += game.player.speed * deltaTime;
+		}	break;
+		}
+		
+		// Коллизии
+		CollisionWithApple(game);
+		CollisionWithObstacle(game);
+		CollisionWithCigarette(game);
+
+		// Проверка столкнулся ли игрок с краем экрана
+		if (game.player.position.x - PLAYER_SIZE / 2.f < 0.f || game.player.position.x + PLAYER_SIZE / 2.f > SCREEN_WIDTH ||
+			game.player.position.y - PLAYER_SIZE / 2.f < 0.f || game.player.position.y + PLAYER_SIZE / 2.f > SCREEN_HEIGHT)
+		{
+			if (!game.isGameOver)
 			{
-				game.player.direction = PlayerDirection::Down;
+				game.audio.gameOverSound.play();
+				UpdateLeaderboard(game);
 			}
+			// Игра останавливается
+			game.isGameOver = true;
+			game.gameOverTime = 0.f;
+			// Переключаем на GameOver
+			PopState(game);
+			PushState(game, GameState::GameOver);
+			return;
+		}
 
-			// Скорость игрока
-			bool isEasy = (game.modeFlags & MODE_EASY) != 0;
-			bool isSpeed = (game.modeFlags & MODE_SPEED) != 0;
+		// Проверка победы
+		bool isEnd = (game.modeFlags & MODE_END) != 0;
+		bool isInfinity = (game.modeFlags & MODE_INFINITY) != 0;
 
-			if (isEasy)
-			{
-				game.player.speed = INITIAL_SPEED;
-			}
-			else if (!isSpeed) // Режим Speed находится в функции Collision with apple
-			{
-				game.player.speed += ACCELERATION * deltaTime;
-				if (game.player.speed > MAX_SPEED)
-				{
-					game.player.speed = MAX_SPEED;
-				}
-			}
-
-			// Движение игрока                                                        // Движение
-			switch (game.player.direction)                                            // по
-			{                                                                         // выбранному
-			case PlayerDirection::Right:                                              // направлению
-			{                                                                         // скорость
-				game.player.position.x += game.player.speed * deltaTime;              // умножается
-				break;                                                                // на
-			}                                                                         // deltaTime
-			case PlayerDirection::Up:                                                 // для  
-			{                                                                         // независимости
-				game.player.position.y -= game.player.speed * deltaTime;              // от
-				break;                                                                // кадров
-			}                                                                         // в
-			case PlayerDirection::Left:                                               // секунду
-			{
-				game.player.position.x -= game.player.speed * deltaTime;
-				break;
-			}
-			case PlayerDirection::Down:
-			{
-				game.player.position.y += game.player.speed * deltaTime;
-			}	break;
-			}
-
-			// Коллизии
-			CollisionWithApple(game);
-			CollisionWithObstacle(game);
-			CollisionWithCigarette(game);
-
-			// Проверка столкнулся ли игрок с краем экрана
-			if (game.player.position.x - PLAYER_SIZE / 2.f < 0.f || game.player.position.x + PLAYER_SIZE / 2.f > SCREEN_WIDTH ||
-				game.player.position.y - PLAYER_SIZE / 2.f < 0.f || game.player.position.y + PLAYER_SIZE / 2.f > SCREEN_HEIGHT)
-			{
-				if (!game.isGameOver)
-				{
-					game.audio.gameOverSound.play();
-					UpdateLeaderboard(game);
-				}
-				// Игра останавливается
-				game.isGameOver = true;
-				game.gameOverTime = 0.f;
-			}
-			
-			bool isEnd = (game.modeFlags & MODE_END) != 0;
-			bool isInfinity = (game.modeFlags & MODE_INFINITY) != 0;
-
-			if (isInfinity)
-			{
-
-			}
-			else if (isEnd)
-			{
-				// Проверяем все ли яблоки съели для режима End
-				bool allEaten = true;
-				for (const auto& apple : game.apples)
-				{
-					if (!apple.isEaten)
-					{
-						allEaten = false;
-						break;
-					}
-				}
-
-				if (allEaten)
-				{
-					UpdateLeaderboard(game);
-
-					game.isGameWin = true;
-					game.text.GameWinLine1.setString("YOU WIN!!!");
-					game.text.GameWinLine1.setOrigin(game.text.GameWinLine1.getLocalBounds().width / 2, game.text.GameWinLine1.getLocalBounds().height / 2);
-					game.text.GameWinLine1.setPosition(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f - 110);
-
-					game.text.GameWinLine2.setString("Press R to restart");
-					game.text.GameWinLine2.setOrigin(game.text.GameWinLine2.getLocalBounds().width / 2, game.text.GameWinLine2.getLocalBounds().height / 2);
-					game.text.GameWinLine2.setPosition(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f + 20);
-
-					game.text.GameWinLine3.setString("Press Esc to exit");
-					game.text.GameWinLine3.setOrigin(game.text.GameWinLine3.getLocalBounds().width / 2, game.text.GameWinLine3.getLocalBounds().height / 2);
-					game.text.GameWinLine3.setPosition(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f + 70);
-				}
-			}
-			
-			// Проверка если набрано 50 очков
-			else if (game.numEatenApples >= 50)
+		if (!isInfinity && !isEnd)
+		{
+			if (game.numEatenApples >= 50)
 			{
 				UpdateLeaderboard(game);
-				
 				game.isGameWin = true;
+				PopState(game);
+				PushState(game, GameState::WinScreen);
+
 				game.text.GameWinLine1.setString("YOU WIN!!!");
 				game.text.GameWinLine1.setOrigin(game.text.GameWinLine1.getLocalBounds().width / 2, game.text.GameWinLine1.getLocalBounds().height / 2);
 				game.text.GameWinLine1.setPosition(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f - 110);
@@ -306,27 +294,134 @@ namespace ApplesGame
 				game.text.GameWinLine3.setString("Press Esc to exit");
 				game.text.GameWinLine3.setOrigin(game.text.GameWinLine3.getLocalBounds().width / 2, game.text.GameWinLine3.getLocalBounds().height / 2);
 				game.text.GameWinLine3.setPosition(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f + 70);
+
+				return;
 			}
 		}
-
-		if (game.isGameOver)  // Считаем таймер
+		else if (isEnd)
 		{
-			game.gameOverTime += deltaTime;
-
-			float remaining = RESTART_DELAY - game.gameOverTime;
-			if (remaining < 0)
+			// Проверяем все ли яблоки съели для режима End
+			bool allEaten = true;
+			for (const auto& apple : game.apples)
 			{
-				remaining = 0;
+				if (!apple.isEaten)
+				{
+					allEaten = false;
+					break;
+				}
 			}
-			int secondsLeft = static_cast<int>(std::ceil(remaining));
-			game.text.restartGameText.setString("Restarting in: " + std::to_string(secondsLeft));
-			game.text.restartGameText.setOrigin(game.text.restartGameText.getLocalBounds().width / 2, game.text.restartGameText.getLocalBounds().height / 4);
 
-
-			if (game.gameOverTime >= RESTART_DELAY)  // Автоматический перезапуск
+			if (allEaten)
 			{
-				ResetGame(game);
+				UpdateLeaderboard(game);
+				game.isGameWin = true;
+				PopState(game);
+				PushState(game, GameState::WinScreen);
+
+				game.text.GameWinLine1.setString("YOU WIN!!!");
+				game.text.GameWinLine1.setOrigin(game.text.GameWinLine1.getLocalBounds().width / 2, game.text.GameWinLine1.getLocalBounds().height / 2);
+				game.text.GameWinLine1.setPosition(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f - 110);
+
+				game.text.GameWinLine2.setString("Press R to restart");
+				game.text.GameWinLine2.setOrigin(game.text.GameWinLine2.getLocalBounds().width / 2, game.text.GameWinLine2.getLocalBounds().height / 2);
+				game.text.GameWinLine2.setPosition(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f + 20);
+
+				game.text.GameWinLine3.setString("Press Esc to exit");
+				game.text.GameWinLine3.setOrigin(game.text.GameWinLine3.getLocalBounds().width / 2, game.text.GameWinLine3.getLocalBounds().height / 2);
+				game.text.GameWinLine3.setPosition(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f + 70);
+
+				return;
 			}
+		}
+	}
+
+	// Обновление экрана GameOver
+	void UpdateGameOver(Game& game, float deltaTime)
+	{
+		game.gameOverTime += deltaTime;
+
+		float remaining = RESTART_DELAY - game.gameOverTime;
+		if (remaining < 0)
+		{
+			remaining = 0;
+		}
+		int secondsLeft = static_cast<int>(std::ceil(remaining));
+		game.text.restartGameText.setString("Restarting in: " + std::to_string(secondsLeft));
+		game.text.restartGameText.setOrigin(game.text.restartGameText.getLocalBounds().width / 2, game.text.restartGameText.getLocalBounds().height / 4);
+
+		if (game.gameOverTime >= RESTART_DELAY)
+		{
+			ResetGame(game);
+			PopState(game);
+			PushState(game, GameState::Gameplay);
+		}
+		
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+		{
+			ResetGame(game);
+			PopState(game);
+			PushState(game, GameState::Gameplay);
+		}
+	}
+
+	// Обновление экрана победы
+	void UpdateWinScreen(Game& game, float deltaTime)
+	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+		{
+			ResetGame(game);
+			PopState(game);
+			PushState(game, GameState::Gameplay);
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+		{
+			PushState(game, GameState::ConfirmExit);
+		}
+	}
+
+	// Обновление экрана подтверждения выхода
+	void UpdateConfirmExit(Game& game)
+	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y) || sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
+		{
+			game.shouldExit = true;
+		}
+
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::N) || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+		{
+			PopState(game);
+		}
+	}
+
+
+
+	// Обновление состояния игры
+	void UpdateGame(Game& game, float deltaTime)
+	{
+		GameState currentState = GetCurrentState(game);
+
+		switch (currentState)
+		{
+		case GameState::StartScreen:
+			UpdateStartScreen(game);
+			break;
+
+		case GameState::Gameplay:
+			UpdateGameplay(game, deltaTime);
+			break;
+
+		case GameState::GameOver:
+			UpdateGameOver(game, deltaTime);
+			break;
+
+		case GameState::WinScreen:
+			UpdateWinScreen(game, deltaTime);
+			break;
+
+		case GameState::ConfirmExit:
+			UpdateConfirmExit(game);
+			break;
 		}
 	}
 

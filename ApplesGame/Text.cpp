@@ -3,6 +3,56 @@
 
 namespace ApplesGame
 {
+	void LeaderBoard(Text& text, sf::RenderWindow& window, Game& game)
+	{
+		if (game.isGameOver || game.isGameWin)
+		{
+			std::vector<std::pair<std::string, int>>sortedEntries;     // Вектор, каждый элемент которого пара: строка и число
+			for (const auto& [name, score] : game.leaderboard)         // Извлекаем строку в name, а число в score
+			{
+				sortedEntries.push_back({ name, score });              // Создаём пару имя и очки, и добавляем в конец вектора и создаём пару в std::pair { }
+			}
+
+			for (int i = 1; i < sortedEntries.size(); ++i)             // Сортируем по убыванию очков
+			{
+				auto key = sortedEntries[i];                           // key - текущий элемент, который хотим вставить в отсортированную часть
+				int j = i - 1;                                         // индекс предыдущего элемента
+
+				while (j >= 0 && sortedEntries[j].second < key.second) // Двигаем элементы вправо, пока не найдём место для key
+				{
+					sortedEntries[j + 1] = sortedEntries[j];           // сдвигаем элементы вправо на освободившееся место
+					j--;
+				}
+				sortedEntries[j + 1] = key;                            // как нашли место вставляем key
+			}
+
+			if (sortedEntries.size() > 10)
+			{
+				sortedEntries.resize(10);                              // Оставляем только 10 элементов
+			}
+
+			std::string leaderboardStr = "===== LEADERBOARD =====\n";
+
+			for (int i = 0; i < sortedEntries.size(); ++i)             // Перебираем все записи в векторе
+			{
+				const auto& [name, score] = sortedEntries[i];
+				leaderboardStr += std::to_string(i + 1) + ". ";        // превращаем число в строку
+				leaderboardStr += name;                                // добавляем ник Player
+
+				int dotsCount = 20 - name.length();                    // Добавим точки (20макс), чтобы красиво расположить ники в таблице лидеров
+				for (int j = 0; j < dotsCount; ++j)                    // Добавляем точки
+				{
+					leaderboardStr += ".";
+				}
+				leaderboardStr += " " + std::to_string(score) + "\n";
+			}
+			leaderboardStr += "=======================";
+
+			text.LeaderBoard.setString(leaderboardStr);
+			window.draw(text.LeaderBoard);
+		}
+	}
+
 	void InitText(Text& text)
 	{
 		// Загружаем шрифт
@@ -87,86 +137,79 @@ namespace ApplesGame
 		text.LeaderBoard.setFillColor(sf::Color::White);
 		text.LeaderBoard.setPosition(10.f, 80.f);
 		text.LeaderBoard.setString("");
+
+		// Инициализация текста "Want to exit?"
+		text.confirmExitText.setFont(text.font);
+		text.confirmExitText.setCharacterSize(60);
+		text.confirmExitText.setFillColor(sf::Color::White);
+		text.confirmExitText.setString("Want to exit?");
+		text.confirmExitText.setOrigin(text.confirmExitText.getLocalBounds().width / 2, text.confirmExitText.getLocalBounds().height / 2);
+		text.confirmExitText.setPosition(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f);
+
+		// Инициализация текста "Yes"
+		text.confirmExitYes.setFont(text.font);
+		text.confirmExitYes.setCharacterSize(40);
+		text.confirmExitYes.setFillColor(sf::Color::Green);
+		text.confirmExitYes.setString("Yes");
+		text.confirmExitYes.setOrigin(text.confirmExitYes.getLocalBounds().width / 2, text.confirmExitYes.getLocalBounds().height / 2);
+		text.confirmExitYes.setPosition(SCREEN_WIDTH / 2.f - 100, SCREEN_HEIGHT / 2.f + 40);
+
+		// Инициализация текста "No"
+		text.confirmExitNo.setFont(text.font);
+		text.confirmExitNo.setCharacterSize(40);
+		text.confirmExitNo.setFillColor(sf::Color::Red);
+		text.confirmExitNo.setString("No");
+		text.confirmExitNo.setOrigin(text.confirmExitNo.getLocalBounds().width / 2, text.confirmExitNo.getLocalBounds().height / 2);
+		text.confirmExitNo.setPosition(SCREEN_WIDTH / 2.f + 100, SCREEN_HEIGHT / 2.f + 40);
 	}
 	void DrawText(Text& text, sf::RenderWindow& window, Game& game)
 	{
-		// Отрисовываем счётчик
-		window.draw(text.Score);
+		GameState currentState = GetCurrentState(game);
 
-		// Отрисовываем текст управления
-		window.draw(text.Control);
-
-		// Отрисовывем клавиши для перезапуска и закрытия игры
-		window.draw(text.RestartAndExit);
-
-		// Отрисовываем текст для начала игры
-		if (!game.isGameStart)
+		switch (currentState)
 		{
+		case GameState::StartScreen:
+			// Отрисовываем текст для начала игры
 			window.draw(text.GameStart);
-		}
-		
-		// Не важно GameOver или GameWin отрисовываем таблицу
-		if (game.isGameOver || game.isGameWin)
-		{
-			std::vector<std::pair<std::string, int>>sortedEntries;     // Вектор, каждый элемент которого пара: строка и число
-			for (const auto& [name, score] : game.leaderboard)         // Извлекаем строку в name, а число в score
-			{
-				sortedEntries.push_back({ name, score });              // Создаём пару имя и очки, и добавляем в конец вектора и создаём пару в std::pair { }
-			}
+			break;
 
-			for (int i = 1; i < sortedEntries.size(); ++i)             // Сортируем по убыванию очков
-			{
-				auto key = sortedEntries[i];                           // key - текущий элемент, который хотим вставить в отсортированную часть
-				int j = i - 1;                                         // индекс предыдущего элемента
+		case GameState::Gameplay:
+			// Отрисовываем счётчик
+			window.draw(text.Score);
+			// Отрисовываем текст управления
+			window.draw(text.Control);
+			// Отрисовывем клавиши для перезапуска и закрытия игры
+			window.draw(text.RestartAndExit);
+			break;
 
-				while (j >= 0 && sortedEntries[j].second < key.second) // Двигаем элементы вправо, пока не найдём место для key
-				{
-					sortedEntries[j + 1] = sortedEntries[j];           // сдвигаем элементы вправо на освободившееся место
-					j--;
-				}
-				sortedEntries[j + 1] = key;                            // как нашли место вставляем key
-			}
-
-			if (sortedEntries.size() > 10)
-			{
-				sortedEntries.resize(10);                              // Оставляем только 10 элементов
-			}
-
-			std::string leaderboardStr = "===== LEADERBOARD =====\n";
-
-			for (int i = 0; i < sortedEntries.size(); ++i)             // Перебираем все записи в векторе
-			{
-				const auto& [name, score] = sortedEntries[i];
-				leaderboardStr += std::to_string(i + 1) + ". ";        // превращаем число в строку
-				leaderboardStr += name;                                // добавляем ник Player
-
-				int dotsCount = 20 - name.length();                    // Добавим точки (20макс), чтобы красиво расположить ники в таблице лидеров
-				for (int j = 0; j < dotsCount; ++j)                    // Добавляем точки
-				{
-					leaderboardStr += ".";
-				}
-				leaderboardStr += " " + std::to_string(score) + "\n";
-			}
-			leaderboardStr += "=======================";
-
-			text.LeaderBoard.setString(leaderboardStr);
-			window.draw(text.LeaderBoard);
-		}
-		
-		// Отрисовываем текст после проигрыша
-		if (game.isGameOver)
-		{
+		case GameState::GameOver:
+			// Отрисовываем текст после проигрыша
 			window.draw(text.gameOverText);
 			window.draw(text.restartGameText);
-		}
+			LeaderBoard(text, window, game);
+			window.draw(text.Score);
+			break;
 
-		// Отрисовываем текст после победы
-		if (game.isGameWin)
-		{
+		case GameState::WinScreen:
+			// Отрисовываем текст после победы
 			window.draw(text.GameWinLine1);
 			window.draw(text.GameWinLine2);
 			window.draw(text.GameWinLine3);
+			LeaderBoard(text, window, game);
+			window.draw(text.Score);
+			break;
+
+		case GameState::ConfirmExit:
+			//Затемним фон игры
+			sf::RectangleShape overlay(sf::Vector2f(SCREEN_WIDTH, SCREEN_HEIGHT));
+			overlay.setFillColor(sf::Color(0, 0, 0, 150)); 
+			window.draw(overlay);
+
+			// Отрисовка текста подтверждения выхода
+			window.draw(text.confirmExitText);
+			window.draw(text.confirmExitYes);
+			window.draw(text.confirmExitNo);
+			break;
 		}
-		
 	}
 }

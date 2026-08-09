@@ -73,7 +73,7 @@ int main()
 	float lastTime = gameClock.getElapsedTime().asSeconds();        // lastTime - время в прошлом кадре    getElapsedTime() - возвращает время с момента запуска игры.в секундах ()
 
 	// Основной цикл игры
-	while (window.isOpen())
+	while (window.isOpen() && !game.shouldExit)
 	{
 		sf::sleep(sf::milliseconds(16));
 		
@@ -91,21 +91,9 @@ int main()
 				window.close();                                     // Если есть, закрываем окно
 				break;
 			}
-			// Выход через Esc
-			if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
-			{
-				window.close();
-				break;
-			}
-			// Перезапуск на R
-			if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::R)
-			{
-				ResetGame(game);
-			}
 		}
 
 		UpdateGame(game, deltaTime);
-		
 		window.clear();                                              // Очищаем экран
 		DrawGame(game, window);
         window.display();                                            // Отрисовка игры

@@ -7,6 +7,7 @@
 #include "Record.h"
 #include <map>
 #include <string>
+#include <vector>
 #include "Apple.h"
 #include "Cigarette.h"
 #include "Obstacle.h"
@@ -16,6 +17,15 @@ namespace ApplesGame
 	//struct Apple;
 	//struct Cigarette;
 	//struct Obstacle;
+	
+	enum GameState
+	{
+		StartScreen,  // Ёкран "Press Enter to start"
+		Gameplay,     // »гровой процесс
+		GameOver,     // Ёкран "Game Over"
+		WinScreen,    // Ёкран "You Win!!!"
+		ConfirmExit   // Ёкран "Want to exit?"
+	};
 	
 	struct Game
 	{
@@ -38,6 +48,7 @@ namespace ApplesGame
 		bool isGameOver = false;
 		bool isGameWin = false;
 		bool isGameStart = false;
+		bool shouldExit = false; // ѕеременна€ подтверждени€ выхода из игры, чтобы закрыть окно
 		float gameOverTime = 0.f;
 
 		sf::Texture playerTexture;
@@ -46,6 +57,7 @@ namespace ApplesGame
 		sf::Texture cigaretteTexture;
 
 		std::map<std::string, int> leaderboard;
+		std::vector<GameState> stateStack;
 
 	};
 
@@ -58,4 +70,9 @@ namespace ApplesGame
 	void AcceptGameMode(Game& game, int modeFlags);
 	void ReCreateGameObjects(Game& game);
 	void UpdateLeaderboard(Game& game); // ‘ункци€ таблицы лидеров. ¬ызываем при победе, столкновении с преп€тствием или стеной.
+	
+	// —тек состо€ний игры
+	void PushState(Game& game, GameState state);
+	void PopState(Game& game);
+	GameState GetCurrentState(const Game& game);
 }

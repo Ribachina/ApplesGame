@@ -38,6 +38,9 @@ namespace ApplesGame
 				}
 				game.isGameOver = true;
 				game.gameOverTime = 0.f;
+				// Переключаем на GameOver
+				PopState(game);
+				PushState(game, GameState::GameOver);
 			}
 		}
 	}

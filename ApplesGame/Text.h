@@ -20,6 +20,9 @@ namespace ApplesGame
 		sf::Text GameWinLine3;
 		sf::Text GameStart;
 		sf::Text LeaderBoard;                                              // Таблица лидеров
+		sf::Text confirmExitText;                                          // Want to exit?
+		sf::Text confirmExitYes;                                           // Yes
+		sf::Text confirmExitNo;                                            // No
 	};
 	
 	void InitText(Text& text);
