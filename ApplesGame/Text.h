@@ -23,8 +23,16 @@ namespace ApplesGame
 		sf::Text confirmExitText;                                          // Want to exit?
 		sf::Text confirmExitYes;                                           // Yes
 		sf::Text confirmExitNo;                                            // No
+		sf::Text menuTitle;                                                // Заголовок игры
+		sf::Text menuItems[3];                                             // Start Game, Leaderboard, Exit Game
+		sf::Text menuHint;                                                 // Use arrows Up/Down, Enter for select
+		sf::Text leaderboardTitle;                                         // Заголовок Leaderboard
+		sf::Text leaderboardHint;                                          // Press Backspace to back
 	};
 	
 	void InitText(Text& text);
 	void DrawText(Text& text, sf::RenderWindow& window, Game& game);
+	void LeaderBoard(Text& text, sf::RenderWindow& window, Game& game);
+	void DrawMainMenu(Text& text, sf::RenderWindow& window, Game& game);
+	void DrawLeaderBoardScreen(Text& text, sf::RenderWindow& window, Game& game);
 }

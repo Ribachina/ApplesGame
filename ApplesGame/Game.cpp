@@ -25,7 +25,7 @@ namespace ApplesGame
 	{
 		if (game.stateStack.empty())
 		{
-			return GameState::StartScreen;
+			return GameState::MainMenu;
 		}
 		return game.stateStack.back();
 	}
@@ -109,9 +109,74 @@ namespace ApplesGame
 		game.leaderboard["Shnurok"] = 25;
 		
 		game.stateStack.clear();
-		PushState(game, GameState::StartScreen);
+		PushState(game, GameState::MainMenu);
 		InitAudio(game.audio);
 		ResetGame(game);
+	}
+
+	void UpdateMainMenu(Game& game)
+	{
+		// Движение по меню (стрелки вверх и вниз)
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+		{
+			if (!game.isUpPressed)
+			{
+				game.selectedMenuItem = (game.selectedMenuItem - 1 + MENU_ITEMS) % MENU_ITEMS;
+				game.isUpPressed = true;
+			}
+		}
+		else
+		{
+			game.isUpPressed = false;
+		}
+		
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+		{
+			if (!game.isDownPressed)
+			{
+				game.selectedMenuItem = (game.selectedMenuItem + 1 + MENU_ITEMS) % MENU_ITEMS;
+				game.isDownPressed = true;
+			}
+		}
+		else
+		{
+			game.isDownPressed = false;
+		}
+		
+
+		// Выбор пункта меню
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+		{
+			if (!game.isEnterPressed)
+			{
+			switch (game.selectedMenuItem)
+				{
+				case 0:      // Start Game
+					PushState(game, GameState::Gameplay);
+					break;
+				case 1:      // Leaderboard
+					PushState(game, GameState::LeaderBoardState);
+					break;
+				case 2:      // Exit
+					PushState(game, GameState::ConfirmExit);
+					break;
+				}
+			game.isEnterPressed = true;
+			}
+		}
+		else
+		{
+			game.isEnterPressed = false;
+		}
+	}
+
+	void UpdateLeaderBoardState(Game& game)
+	{
+		// Возвращение в главное меню посредством нажатия backspace
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Backspace))
+		{
+				PopState(game); // Возвращаемся в Главное меню
+		}
 	}
 
 	void AcceptGameMode(Game& game, int modeFlags) // Функция применения режима игры
@@ -170,22 +235,22 @@ namespace ApplesGame
 		}
 	}
 	
-	// Обновление экрана начала игры
-	void UpdateStartScreen(Game& game) 
-	{
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
-		{
-			PushState(game, GameState::Gameplay);
-		}
-	}
+
 
 	// Обновление игрового процесса
 	void UpdateGameplay(Game& game, float deltaTime)
 	{
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 		{
+			if (!game.isEscPressed)
+			{
 			PushState(game, GameState::ConfirmExit);
-			return;
+			game.isEscPressed = true;
+			}
+		}
+		else
+		{
+			game.isEscPressed = false;
 		}
 		
 		// Управление
@@ -383,14 +448,28 @@ namespace ApplesGame
 	// Обновление экрана подтверждения выхода
 	void UpdateConfirmExit(Game& game)
 	{
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y) || sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
+		
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y) || sf::Keyboard::isKeyPressed(sf::Keyboard::Return)) // Закрываем окно, используя Y  или Enter
 		{
+			if (!game.isEscPressed)
+			{
 			game.shouldExit = true;
+			game.isEscPressed = true;
+			}
 		}
 
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::N) || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::N) || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) // Отменяем закрытия окна, используя N  или Escape
 		{
+			if (!game.isEscPressed)
+			{
 			PopState(game);
+			game.isEscPressed = true;
+			}
+		}
+
+		else
+		{
+			game.isEscPressed = false;
 		}
 	}
 
@@ -403,8 +482,8 @@ namespace ApplesGame
 
 		switch (currentState)
 		{
-		case GameState::StartScreen:
-			UpdateStartScreen(game);
+		case GameState::MainMenu:
+			UpdateMainMenu(game);
 			break;
 
 		case GameState::Gameplay:
@@ -421,6 +500,10 @@ namespace ApplesGame
 
 		case GameState::ConfirmExit:
 			UpdateConfirmExit(game);
+			break;
+			
+		case GameState::LeaderBoardState:
+			UpdateLeaderBoardState(game);
 			break;
 		}
 	}

@@ -5,8 +5,6 @@ namespace ApplesGame
 {
 	void LeaderBoard(Text& text, sf::RenderWindow& window, Game& game)
 	{
-		if (game.isGameOver || game.isGameWin)
-		{
 			std::vector<std::pair<std::string, int>>sortedEntries;     // Вектор, каждый элемент которого пара: строка и число
 			for (const auto& [name, score] : game.leaderboard)         // Извлекаем строку в name, а число в score
 			{
@@ -50,8 +48,29 @@ namespace ApplesGame
 
 			text.LeaderBoard.setString(leaderboardStr);
 			window.draw(text.LeaderBoard);
-		}
 	}
+
+	void DrawMainMenu(Text& text, sf::RenderWindow& window, Game& game)
+	{
+		window.draw(text.menuTitle); // Заголовок
+
+		for (int i = 0; i < 3; ++i)
+		{
+			if (i == game.selectedMenuItem)
+			{
+				text.menuItems[i].setFillColor(sf::Color::Yellow); // Красим выбранный пункт
+			}
+			else
+			{
+				text.menuItems[i].setFillColor(sf::Color::White); // Не выбранный пункт остаётся белым
+			}
+			window.draw(text.menuItems[i]);
+		}
+
+		window.draw(text.menuHint); // Подсказка
+	}
+
+	
 
 	void InitText(Text& text)
 	{
@@ -161,16 +180,83 @@ namespace ApplesGame
 		text.confirmExitNo.setString("No");
 		text.confirmExitNo.setOrigin(text.confirmExitNo.getLocalBounds().width / 2, text.confirmExitNo.getLocalBounds().height / 2);
 		text.confirmExitNo.setPosition(SCREEN_WIDTH / 2.f + 100, SCREEN_HEIGHT / 2.f + 40);
+
+		// Инициализация текста заголовка игры
+		text.menuTitle.setFont(text.font);
+		text.menuTitle.setCharacterSize(80);
+		text.menuTitle.setFillColor(sf::Color::Yellow);
+		text.menuTitle.setString("APPLES GAME");
+		text.menuTitle.setOrigin(text.menuTitle.getLocalBounds().width / 2, text.menuTitle.getLocalBounds().height / 2);
+		text.menuTitle.setPosition(SCREEN_WIDTH / 2.f, 150.f);
+
+		// Инициализация пунктов меню
+		std::vector<std::string>menuItemsStrings =
+		{
+			"Start Game",
+			"Leaderboard",
+			"Exit game"
+		};
+		for (int i = 0; i < 3; ++i)
+		{
+			text.menuItems[i].setFont(text.font);
+			text.menuItems[i].setCharacterSize(50);
+			text.menuItems[i].setString(menuItemsStrings[i]);
+			text.menuItems[i].setOrigin(text.menuItems[i].getLocalBounds().width / 2, text.menuItems[i].getLocalBounds().height / 2);
+			text.menuItems[i].setPosition(SCREEN_WIDTH / 2.f, 300.f + i * 70.f);
+		}
+
+		// Инициализация подсказок в меню
+		text.menuHint.setFont(text.font);
+		text.menuHint.setCharacterSize(50);
+		text.menuHint.setFillColor(sf::Color(150, 150,150));
+		text.menuHint.setString("Use Up/Down arrows to move. Enter to select");
+		text.menuHint.setOrigin(text.menuHint.getLocalBounds().width / 2, text.menuHint.getLocalBounds().height / 2);
+		text.menuHint.setPosition(SCREEN_WIDTH / 2.f, 600.f);
+
+		// Инициализация заголовка "Таблица лидеров"
+		text.leaderboardTitle.setFont(text.font);
+		text.leaderboardTitle.setCharacterSize(60);
+		text.leaderboardTitle.setFillColor(sf::Color::Yellow);
+		text.leaderboardTitle.setString("Leaderboard");
+		text.leaderboardTitle.setOrigin(text.leaderboardTitle.getLocalBounds().width / 2, text.leaderboardTitle.getLocalBounds().height / 2);
+		text.leaderboardTitle.setPosition(SCREEN_WIDTH / 2.f, 80.f);
+
+		// Инициализация подсказок для Таблицы лидеров
+		text.leaderboardHint.setFont(text.font);
+		text.leaderboardHint.setCharacterSize(30);
+		text.leaderboardHint.setFillColor(sf::Color(150, 150, 150));
+		text.leaderboardHint.setString("Press Backspace to back");
+		text.leaderboardHint.setOrigin(text.leaderboardHint.getLocalBounds().width / 2, text.leaderboardHint.getLocalBounds().height / 2);
+		text.leaderboardHint.setPosition(SCREEN_WIDTH / 2.f, 680.f);
+
 	}
+
+	void DrawLeaderBoardScreen(Text& text, sf::RenderWindow& window, Game& game)
+	{
+		// Затемняем экран
+		sf::RectangleShape overlay(sf::Vector2f(SCREEN_WIDTH, SCREEN_HEIGHT));
+		overlay.setFillColor(sf::Color(0, 0, 0, 200));
+		window.draw(overlay);
+
+		// Отрисовываем заголовок таблицы лидеров
+		window.draw(text.leaderboardTitle);
+
+		// Отрисовываем таблицу лидеров
+		LeaderBoard(text, window, game);
+
+		// Отрисовывем подсказку
+		window.draw(text.leaderboardHint);
+	}
+
 	void DrawText(Text& text, sf::RenderWindow& window, Game& game)
 	{
 		GameState currentState = GetCurrentState(game);
 
 		switch (currentState)
 		{
-		case GameState::StartScreen:
+		case GameState::MainMenu:
 			// Отрисовываем текст для начала игры
-			window.draw(text.GameStart);
+			DrawMainMenu(text, window, game);
 			break;
 
 		case GameState::Gameplay:
@@ -186,7 +272,10 @@ namespace ApplesGame
 			// Отрисовываем текст после проигрыша
 			window.draw(text.gameOverText);
 			window.draw(text.restartGameText);
+			if (game.isGameOver)
+			{
 			LeaderBoard(text, window, game);
+			}
 			window.draw(text.Score);
 			break;
 
@@ -195,20 +284,29 @@ namespace ApplesGame
 			window.draw(text.GameWinLine1);
 			window.draw(text.GameWinLine2);
 			window.draw(text.GameWinLine3);
+			if (game.isGameWin)
+			{
 			LeaderBoard(text, window, game);
+			}
 			window.draw(text.Score);
 			break;
 
 		case GameState::ConfirmExit:
+		{
 			//Затемним фон игры
 			sf::RectangleShape overlay(sf::Vector2f(SCREEN_WIDTH, SCREEN_HEIGHT));
-			overlay.setFillColor(sf::Color(0, 0, 0, 150)); 
+			overlay.setFillColor(sf::Color(0, 0, 0, 150));
 			window.draw(overlay);
 
 			// Отрисовка текста подтверждения выхода
 			window.draw(text.confirmExitText);
 			window.draw(text.confirmExitYes);
 			window.draw(text.confirmExitNo);
+			break;
+		}
+
+		case GameState::LeaderBoardState:
+			DrawLeaderBoardScreen(text, window, game);
 			break;
 		}
 	}

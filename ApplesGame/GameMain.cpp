@@ -91,6 +91,11 @@ int main()
 				window.close();                                     // Если есть, закрываем окно
 				break;
 			}
+			if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::R)
+			{
+				ResetGame(game);
+				break;
+			}
 		}
 
 		UpdateGame(game, deltaTime);

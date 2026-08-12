@@ -15,15 +15,15 @@ namespace ApplesGame
 	const float RESTART_DELAY = 2.f;   // Время до рестарта игры
 	const float CIGARETTE_SIZE = 20.f; // Размер бонуса
 	const float SPEED_PLUS = 30.f;     // Ускорение после поедания яблока
+	const float COOLDOWN_TIME = 0.15f; // Задержка для меню и подтверждения выхода
+	const int MENU_ITEMS = 3;          // Start Game, Leaderboard, Exit Game
 	
-
 	// Константы для режимов игры
 	const int DEFAULT_NUM_APPLES = 20;    // Количество яблок на экране по умолчанию
 	const int DEFAULT_NUM_OBSTACLES = 5;  // Количество препятствий по умолчанию
 	const int DEFAULT_NUM_CIGARETTES = 2; // Количество бонусов по умолчанию
 
 	// Режимы игры
-	
 	const int MODE_HARD = 1 << 0;     // 1. 50 яблок, 10 препятствий, 5 бонусов, скорость растёт
 	const int MODE_EASY = 1 << 1;     // 2. 20 яблок, 5 препятствий, 2 бонуса, скорость не растёт
 	const int MODE_CUSTOM = 1 << 2;   // 4. Настройки пользователя скорость растёт
