@@ -70,6 +70,30 @@ namespace ApplesGame
 		window.draw(text.menuHint); // Подсказка
 	}
 
+	void DrawPauseMenu(Text& text, sf::RenderWindow& window, Game& game)
+	{
+		// Затемняем экран
+		sf::RectangleShape overlay(sf::Vector2f(SCREEN_WIDTH, SCREEN_HEIGHT));
+		overlay.setFillColor(sf::Color(0, 0, 0, 200));
+		window.draw(overlay);
+		// Отрисовываем заголовок PAUSE
+		window.draw(text.pauseTitle);
+		// Подсвечиваем выбранный пункт в меню паузы
+		for (int i = 0; i < 2; ++i)
+		{
+			if (i == game.selectedPauseMenuItem)
+			{
+				text.pauseItems[i].setFillColor(sf::Color::Yellow);
+			}
+			else
+			{
+				text.pauseItems[i].setFillColor(sf::Color::White);
+			}
+			window.draw(text.pauseItems[i]);
+		}
+		window.draw(text.pauseHint);
+	}
+
 	
 
 	void InitText(Text& text)
@@ -111,8 +135,8 @@ namespace ApplesGame
 		// Инициализация текста перезапуска и выхода
 		text.RestartAndExit.setFont(text.font);
 		text.RestartAndExit.setCharacterSize(40);
-		text.RestartAndExit.setFillColor(sf::Color::White);
-		text.RestartAndExit.setString("Press R to restart or Esc to exit");
+		text.RestartAndExit.setFillColor(sf::Color(150, 150, 150));
+		text.RestartAndExit.setString("Press R to restart or Esc to exit or P for pause");
 		float textWidth = text.RestartAndExit.getLocalBounds().width;
 		text.RestartAndExit.setOrigin(0.f, 0.f);
 		float rightIndent = 10.f; // Небольшой отступ от края
@@ -229,6 +253,37 @@ namespace ApplesGame
 		text.leaderboardHint.setOrigin(text.leaderboardHint.getLocalBounds().width / 2, text.leaderboardHint.getLocalBounds().height / 2);
 		text.leaderboardHint.setPosition(SCREEN_WIDTH / 2.f, 680.f);
 
+		// Инициализация текста меню паузы
+		text.pauseTitle.setFont(text.font);
+		text.pauseTitle.setCharacterSize(80);
+		text.pauseTitle.setFillColor(sf::Color::Yellow);
+		text.pauseTitle.setString("APPLES GAME");
+		text.pauseTitle.setOrigin(text.pauseTitle.getLocalBounds().width / 2, text.pauseTitle.getLocalBounds().height / 2);
+		text.pauseTitle.setPosition(SCREEN_WIDTH / 2.f, 150.f);
+
+		// Инициализация пунктов меню паузы
+		std::vector<std::string> pauseItemStrings =
+		{
+			"Continue",
+			"Exit to menu"
+		};
+		for (int i = 0; i < 2; ++i)
+		{
+			text.pauseItems[i].setFont(text.font);
+			text.pauseItems[i].setCharacterSize(50);
+			text.pauseItems[i].setString(pauseItemStrings[i]);
+			text.pauseItems[i].setOrigin(text.pauseItems[i].getLocalBounds().width / 2, text.pauseItems[i].getLocalBounds().height / 2);
+			text.pauseItems[i].setPosition(SCREEN_WIDTH / 2.f, 300.f + i * 70.f);
+		}
+
+		// Инициализация подсказок в меню паузы
+		text.pauseHint.setFont(text.font);
+		text.pauseHint.setCharacterSize(50);
+		text.pauseHint.setFillColor(sf::Color(150, 150, 150));
+		text.pauseHint.setString("Use Up/Down arrows to move. Enter to select");
+		text.pauseHint.setOrigin(text.pauseHint.getLocalBounds().width / 2, text.pauseHint.getLocalBounds().height / 2);
+		text.pauseHint.setPosition(SCREEN_WIDTH / 2.f, 600.f);
+
 	}
 
 	void DrawLeaderBoardScreen(Text& text, sf::RenderWindow& window, Game& game)
@@ -266,6 +321,10 @@ namespace ApplesGame
 			window.draw(text.Control);
 			// Отрисовывем клавиши для перезапуска и закрытия игры
 			window.draw(text.RestartAndExit);
+			break;
+
+		case GameState::PauseMenu:
+			DrawPauseMenu(text, window, game);
 			break;
 
 		case GameState::GameOver:

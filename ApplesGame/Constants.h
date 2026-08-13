@@ -15,8 +15,8 @@ namespace ApplesGame
 	const float RESTART_DELAY = 2.f;   // Время до рестарта игры
 	const float CIGARETTE_SIZE = 20.f; // Размер бонуса
 	const float SPEED_PLUS = 30.f;     // Ускорение после поедания яблока
-	const float COOLDOWN_TIME = 0.15f; // Задержка для меню и подтверждения выхода
 	const int MENU_ITEMS = 3;          // Start Game, Leaderboard, Exit Game
+	const int PAUSE_MENU_ITEMS = 2;    // Continue, Exit to Menu (в меню паузы)
 	
 	// Константы для режимов игры
 	const int DEFAULT_NUM_APPLES = 20;    // Количество яблок на экране по умолчанию
@@ -32,3 +32,8 @@ namespace ApplesGame
 	const int MODE_INFINITY = 1 << 5; // 32. Бесконечный режим
 
 }
+
+/*Формула из интернетов, чтобы реализовать циклическое меню:
+Для любого количества пунктов меню равного N:
+Вниз (следующий пункт): index = (index + 1) % N
+Вверх (предыдущий пункт): index = (index - 1) % N*/

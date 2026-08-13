@@ -170,6 +170,61 @@ namespace ApplesGame
 		}
 	}
 
+	void UpdatePauseMenu(Game& game)
+	{
+		// Движение по меню паузы (стрелки вверх и вниз)
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+		{
+			if (!game.isUpPressed)
+			{
+				game.selectedPauseMenuItem = (game.selectedPauseMenuItem - 1 + PAUSE_MENU_ITEMS) % PAUSE_MENU_ITEMS;
+				game.isUpPressed = true;
+			}
+		}
+		else
+		{
+			game.isUpPressed = false;
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+		{
+			if (!game.isDownPressed)
+			{
+				game.selectedPauseMenuItem = (game.selectedPauseMenuItem + 1 + PAUSE_MENU_ITEMS) % PAUSE_MENU_ITEMS;
+				game.isDownPressed = true;
+			}
+		}
+		else
+		{
+			game.isDownPressed = false;
+		}
+
+
+		// Выбор пункта меню
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+		{
+			if (!game.isEnterPressed)
+			{
+				switch (game.selectedPauseMenuItem)
+				{
+				case 0 :             // Continue
+					PopState(game);  // Возвращаемся в игру
+					break;
+				case 1:              // Exit to Menu
+					PopState(game);  // Убираем PauseMenu
+					PopState(game);  // Убираем Gameplay
+					ResetGame(game); // Сбрасываем игру
+					break;
+				}
+				game.isEnterPressed = true;
+			}
+		}
+		else
+		{
+			game.isEnterPressed = false;
+		}
+	}
+	
 	void UpdateLeaderBoardState(Game& game)
 	{
 		// Возвращение в главное меню посредством нажатия backspace
@@ -240,6 +295,7 @@ namespace ApplesGame
 	// Обновление игрового процесса
 	void UpdateGameplay(Game& game, float deltaTime)
 	{
+		// Обработка клавиши Esc (1 раз за нажатие)
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 		{
 			if (!game.isEscPressed)
@@ -251,6 +307,20 @@ namespace ApplesGame
 		else
 		{
 			game.isEscPressed = false;
+		}
+
+		// Обработка клавиши "P" (1 раз за нажатие)
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::P))
+		{
+			if (!game.isPausePressed)
+			{
+				PushState(game, GameState::PauseMenu);
+				game.isPausePressed = true;
+			}
+		}
+		else
+		{
+			game.isPausePressed = false;
 		}
 		
 		// Управление
@@ -488,6 +558,10 @@ namespace ApplesGame
 
 		case GameState::Gameplay:
 			UpdateGameplay(game, deltaTime);
+			break;
+
+		case GameState::PauseMenu:
+			UpdatePauseMenu(game);
 			break;
 
 		case GameState::GameOver:

@@ -22,7 +22,8 @@ namespace ApplesGame
 		GameOver,        // Экран "Game Over"
 		WinScreen,       // Экран "You Win!!!"
 		ConfirmExit,     // Экран "Want to exit?"
-		LeaderBoardState // Таблица рекордов в меню
+		LeaderBoardState,// Таблица рекордов в меню
+		PauseMenu        // Меню паузы
 	};
 	
 	struct Game
@@ -48,19 +49,21 @@ namespace ApplesGame
 		bool isGameStart = false;
 		bool shouldExit = false;               // Переменная подтверждения выхода из игры, чтобы закрыть окно
 		float gameOverTime = 0.f;
-		bool isEscPressed = false;             // Переменная для замедления обновления нажатия клавиши Esc во время игры
-		bool isUpPressed = false;              // Переменная для замедления обновления нажатия стрелки вверх в главном меню
-		bool isDownPressed = false;            // Переменная для замедления обновления нажатия стрелки вниз в главном меню
-		bool isEnterPressed = false;           // Переменная для замедления обновления нажатия Enter в главном меню
+		bool isEscPressed = false;             // Флаг однократного нажатия клавиши Esc во время игры
+		bool isUpPressed = false;              // Флаг однократного нажатия стрелки вверх в главном меню
+		bool isDownPressed = false;            // Флаг однократного нажатия стрелки вниз в главном меню
+		bool isEnterPressed = false;           // Флаг однократного нажатия Enter в главном меню
+		bool isPausePressed = false;           // Флаг однократного нажатия клавиши "P" во время игры
 
 		int selectedMenuItem = 0;              // Чтобы подсвечивать выбранный пункт в меню
+		int selectedPauseMenuItem = 0;         // Чтобы подсвечивать выбранный пункт в меню паузы
 
 		sf::Texture playerTexture;
 		sf::Texture appleTexture;
 		sf::Texture obstacleTexture;
 		sf::Texture cigaretteTexture;
 
-		std::map<std::string, int> leaderboard; // Создаём map таблицу лидеров имя-число
+		std::map<std::string, int> leaderboard; // Создаём map таблицу лидеров имя-очки
 		std::vector<GameState> stateStack;      // Создаём стэк состояний игры
 
 	};
@@ -78,8 +81,9 @@ namespace ApplesGame
 	void UpdateGameOver(Game& game, float deltaTime);                           // Обновление экрана GameOver
 	void UpdateWinScreen(Game& game, float deltaTime);                          // Обновление экрана победы
 	void UpdateConfirmExit(Game& game);                                         // Обновление экрана подтверждения выхода
-	void UpdateMainMenu(Game& game);                                            // Функция передвижения по главному меню
+	void UpdateMainMenu(Game& game);                                            // Функция передвижения  и выбор по главному меню
 	void UpdateLeaderBoardState(Game& game);                                    // Функция позволяющая вернуться в главное меню из таблицы лидеров
+	void UpdatePauseMenu(Game& game);                                           // Функция передвижения  и выбор по меню паузы
 	
 	// Стек состояний игры
 	void PushState(Game& game, GameState state);

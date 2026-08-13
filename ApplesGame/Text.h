@@ -25,9 +25,12 @@ namespace ApplesGame
 		sf::Text confirmExitNo;                                            // No
 		sf::Text menuTitle;                                                // Заголовок игры
 		sf::Text menuItems[3];                                             // Start Game, Leaderboard, Exit Game
-		sf::Text menuHint;                                                 // Use arrows Up/Down, Enter for select
+		sf::Text menuHint;                                                 // Подсказка: Use arrows Up/Down, Enter for select
 		sf::Text leaderboardTitle;                                         // Заголовок Leaderboard
 		sf::Text leaderboardHint;                                          // Press Backspace to back
+		sf::Text pauseTitle;                                               // Надпись "PAUSED"
+		sf::Text pauseItems[2];                                            // Continue, Exit to menu
+		sf::Text pauseHint;                                                // Подсказка: Use arrows Up/Down, Enter for select. Можно использовать и menuHint
 	};
 	
 	void InitText(Text& text);
@@ -35,4 +38,5 @@ namespace ApplesGame
 	void LeaderBoard(Text& text, sf::RenderWindow& window, Game& game);
 	void DrawMainMenu(Text& text, sf::RenderWindow& window, Game& game);
 	void DrawLeaderBoardScreen(Text& text, sf::RenderWindow& window, Game& game);
+	void DrawPauseMenu(Text& text, sf::RenderWindow& window, Game& game);
 }
