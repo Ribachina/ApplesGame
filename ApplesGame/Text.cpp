@@ -52,6 +52,9 @@ namespace ApplesGame
 
 	void DrawMainMenu(Text& text, sf::RenderWindow& window, Game& game)
 	{
+		sf::RectangleShape overlay(sf::Vector2f(SCREEN_WIDTH, SCREEN_HEIGHT)); // Затемним фон на главном экране
+		overlay.setFillColor(sf::Color::Black);
+		window.draw(overlay);
 		window.draw(text.menuTitle); // Заголовок
 
 		for (int i = 0; i < 3; ++i)
@@ -247,11 +250,11 @@ namespace ApplesGame
 
 		// Инициализация подсказок для Таблицы лидеров
 		text.leaderboardHint.setFont(text.font);
-		text.leaderboardHint.setCharacterSize(30);
+		text.leaderboardHint.setCharacterSize(50);
 		text.leaderboardHint.setFillColor(sf::Color(150, 150, 150));
 		text.leaderboardHint.setString("Press Backspace to back");
 		text.leaderboardHint.setOrigin(text.leaderboardHint.getLocalBounds().width / 2, text.leaderboardHint.getLocalBounds().height / 2);
-		text.leaderboardHint.setPosition(SCREEN_WIDTH / 2.f, 680.f);
+		text.leaderboardHint.setPosition(SCREEN_WIDTH / 2.f, 600.f);
 
 		// Инициализация текста меню паузы
 		text.pauseTitle.setFont(text.font);
